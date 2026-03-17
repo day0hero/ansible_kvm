@@ -9,74 +9,90 @@
     state: directory
     mode: "0755"
 
+# --- oc client ---
+- name: Check for oc tarball
+  ansible.builtin.stat:
+    path: /tmp/oc.tar.gz
+  register: _oc_tarball
+
+- name: Download oc client tarball
+  ansible.builtin.get_url:
+    url: "{{ _ocp_mirror_url }}/openshift-client-linux.tar.gz"
+    dest: /tmp/oc.tar.gz
+    mode: "0644"
+  when: not _oc_tarball.stat.exists
+
 - name: Check for existing oc binary
   ansible.builtin.stat:
     path: /usr/local/bin/oc
   register: _oc_binary
 
-- name: Download and install oc client
+- name: Extract oc and kubectl
+  ansible.builtin.unarchive:
+    src: /tmp/oc.tar.gz
+    dest: /usr/local/bin
+    remote_src: true
+    extra_opts:
+      - oc
+      - kubectl
+    mode: "0755"
   when: not _oc_binary.stat.exists
-  block:
-    - name: Download oc client tarball
-      ansible.builtin.get_url:
-        url: "{{ _ocp_mirror_url }}/openshift-client-linux.tar.gz"
-        dest: /tmp/oc.tar.gz
-        mode: "0644"
 
-    - name: Extract oc and kubectl
-      ansible.builtin.unarchive:
-        src: /tmp/oc.tar.gz
-        dest: /usr/local/bin
-        remote_src: true
-        extra_opts:
-          - oc
-          - kubectl
-        mode: "0755"
+# --- openshift-install ---
+- name: Check for openshift-install tarball
+  ansible.builtin.stat:
+    path: /tmp/openshift-install.tar.gz
+  register: _oi_tarball
+
+- name: Download openshift-install tarball
+  ansible.builtin.get_url:
+    url: "{{ _ocp_mirror_url }}/openshift-install-linux.tar.gz"
+    dest: /tmp/openshift-install.tar.gz
+    mode: "0644"
+  when: not _oi_tarball.stat.exists
 
 - name: Check for existing openshift-install binary
   ansible.builtin.stat:
     path: /usr/local/bin/openshift-install
   register: _oi_binary
 
-- name: Download and install openshift-install
+- name: Extract openshift-install
+  ansible.builtin.unarchive:
+    src: /tmp/openshift-install.tar.gz
+    dest: /usr/local/bin
+    remote_src: true
+    extra_opts:
+      - openshift-install
+    mode: "0755"
   when: not _oi_binary.stat.exists
-  block:
-    - name: Download openshift-install tarball
-      ansible.builtin.get_url:
-        url: "{{ _ocp_mirror_url }}/openshift-install-linux.tar.gz"
-        dest: /tmp/openshift-install.tar.gz
-        mode: "0644"
 
-    - name: Extract openshift-install
-      ansible.builtin.unarchive:
-        src: /tmp/openshift-install.tar.gz
-        dest: /usr/local/bin
-        remote_src: true
-        extra_opts:
-          - openshift-install
-        mode: "0755"
+# --- oc-mirror ---
+- name: Check for oc-mirror tarball
+  ansible.builtin.stat:
+    path: /tmp/oc-mirror.tar.gz
+  register: _ocm_tarball
+
+- name: Download oc-mirror tarball
+  ansible.builtin.get_url:
+    url: "{{ _ocp_mirror_url }}/oc-mirror.rhel9.tar.gz"
+    dest: /tmp/oc-mirror.tar.gz
+    mode: "0644"
+  when: not _ocm_tarball.stat.exists
 
 - name: Check for existing oc-mirror binary
   ansible.builtin.stat:
     path: /usr/local/bin/oc-mirror
   register: _ocm_binary
 
-- name: Download and install oc-mirror
+- name: Extract oc-mirror
+  ansible.builtin.unarchive:
+    src: /tmp/oc-mirror.tar.gz
+    dest: /usr/local/bin
+    remote_src: true
+    mode: "0755"
   when: not _ocm_binary.stat.exists
-  block:
-    - name: Download oc-mirror tarball
-      ansible.builtin.get_url:
-        url: "{{ _ocp_mirror_url }}/oc-mirror.rhel9.tar.gz"
-        dest: /tmp/oc-mirror.tar.gz
-        mode: "0644"
 
-    - name: Extract oc-mirror
-      ansible.builtin.unarchive:
-        src: /tmp/oc-mirror.tar.gz
-        dest: /usr/local/bin
-        remote_src: true
-        mode: "0755"
-
+# --- Ensure permissions ---
 - name: Ensure OCP binaries are executable
   ansible.builtin.file:
     path: "/usr/local/bin/{{ item }}"

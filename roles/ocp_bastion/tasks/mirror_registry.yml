@@ -5,65 +5,83 @@
     state: directory
     mode: "0755"
 
-- name: Check if mirror registry is already installed
+# --- Download ---
+- name: Check if mirror-registry tarball already downloaded
   ansible.builtin.stat:
-    path: /root/quay-install
-  register: _quay_installed
+    path: /tmp/mirror-registry.tar.gz
+  register: _mr_tarball
 
-- name: Download and install mirror registry
-  when: not _quay_installed.stat.exists
-  block:
-    - name: Download mirror-registry tarball
-      ansible.builtin.get_url:
-        url: >-
-          https://developers.redhat.com/content-gateway/file/pub/openshift-v4/clients/mirror-registry/{{
-          mirror_registry_version }}/mirror-registry.tar.gz
-        dest: /tmp/mirror-registry.tar.gz
-        mode: "0644"
+- name: Download mirror-registry tarball
+  ansible.builtin.get_url:
+    url: >-
+      https://developers.redhat.com/content-gateway/file/pub/openshift-v4/clients/mirror-registry/{{
+      mirror_registry_version }}/mirror-registry.tar.gz
+    dest: /tmp/mirror-registry.tar.gz
+    mode: "0644"
+  when: not _mr_tarball.stat.exists
 
-    - name: Extract mirror-registry
-      ansible.builtin.unarchive:
-        src: /tmp/mirror-registry.tar.gz
-        dest: "{{ mirror_registry_dir }}"
-        remote_src: true
-        mode: "0755"
+# --- Extract ---
+- name: Check if mirror-registry binary already extracted
+  ansible.builtin.stat:
+    path: "{{ mirror_registry_dir }}/mirror-registry"
+  register: _mr_binary
 
-    - name: Check for existing mirror registry password
-      ansible.builtin.stat:
-        path: /root/.quay-init-password
-      register: _quay_pw_file
+- name: Extract mirror-registry
+  ansible.builtin.unarchive:
+    src: /tmp/mirror-registry.tar.gz
+    dest: "{{ mirror_registry_dir }}"
+    remote_src: true
+    mode: "0755"
+  when: not _mr_binary.stat.exists
 
-    - name: Generate mirror registry password
-      ansible.builtin.set_fact:
-        _quay_init_password: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters,digits') }}"
-      when: not _quay_pw_file.stat.exists
+# --- Password ---
+- name: Check for existing mirror registry password
+  ansible.builtin.stat:
+    path: /root/.quay-init-password
+  register: _quay_pw_file
 
-    - name: Read existing mirror registry password
-      ansible.builtin.slurp:
-        src: /root/.quay-init-password
-      register: _quay_pw_content
-      when: _quay_pw_file.stat.exists
+- name: Generate mirror registry password
+  ansible.builtin.set_fact:
+    _quay_init_password: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters,digits') }}"
+  when: not _quay_pw_file.stat.exists
 
-    - name: Set password from existing file
-      ansible.builtin.set_fact:
-        _quay_init_password: "{{ _quay_pw_content.content | b64decode | trim }}"
-      when: _quay_pw_file.stat.exists
+- name: Read existing mirror registry password
+  ansible.builtin.slurp:
+    src: /root/.quay-init-password
+  register: _quay_pw_content
+  when: _quay_pw_file.stat.exists
 
-    - name: Store mirror registry password
-      ansible.builtin.copy:
-        content: "{{ _quay_init_password }}"
-        dest: /root/.quay-init-password
-        mode: "0600"
+- name: Set password from existing file
+  ansible.builtin.set_fact:
+    _quay_init_password: "{{ _quay_pw_content.content | b64decode | trim }}"
+  when: _quay_pw_file.stat.exists
 
-    - name: Install mirror registry
-      ansible.builtin.command:
-        cmd: >-
-          {{ mirror_registry_dir }}/mirror-registry install
-          --quayHostname {{ quay_hostname }}
-          --quayRoot {{ mirror_registry_dir }}
-          --initPassword {{ _quay_init_password }}
-      changed_when: true
+- name: Store mirror registry password
+  ansible.builtin.copy:
+    content: "{{ _quay_init_password }}"
+    dest: /root/.quay-init-password
+    mode: "0600"
+  when: not _quay_pw_file.stat.exists
 
+# --- Install ---
+- name: Check if mirror registry is already installed
+  ansible.builtin.command:
+    cmd: podman ps --filter name=quay-app --format "{{ '{{' }}.Names{{ '}}' }}"
+  register: _quay_running
+  changed_when: false
+  failed_when: false
+
+- name: Install mirror registry
+  ansible.builtin.command:
+    cmd: >-
+      {{ mirror_registry_dir }}/mirror-registry install
+      --quayHostname {{ quay_hostname }}
+      --quayRoot {{ mirror_registry_dir }}
+      --initPassword {{ _quay_init_password }}
+  when: "'quay-app' not in _quay_running.stdout"
+  changed_when: true
+
+# --- Set password fact for downstream tasks ---
 - name: Read mirror registry password for downstream tasks
   ansible.builtin.slurp:
     src: /root/.quay-init-password
@@ -73,6 +91,7 @@
   ansible.builtin.set_fact:
     quay_init_password: "{{ _quay_pw_final.content | b64decode | trim }}"
 
+# --- CA trust ---
 - name: Find Quay root CA certificate
   ansible.builtin.find:
     paths:
