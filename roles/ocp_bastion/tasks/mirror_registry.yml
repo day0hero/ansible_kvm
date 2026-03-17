@@ -78,8 +78,22 @@
       --quayHostname {{ quay_hostname }}
       --quayRoot {{ mirror_registry_dir }}
       --initPassword {{ _quay_init_password }}
+      -v
   when: "'quay-app' not in _quay_running.stdout"
   changed_when: true
+  failed_when: false
+  register: _mr_install
+
+# --- Wait for Quay to become healthy ---
+- name: Wait for Quay registry to become healthy
+  ansible.builtin.uri:
+    url: "https://{{ quay_hostname }}:{{ quay_port }}/health/instance"
+    validate_certs: false
+    status_code: 200
+  register: _quay_health
+  retries: 30
+  delay: 20
+  until: _quay_health.status == 200
 
 # --- Set password fact for downstream tasks ---
 - name: Read mirror registry password for downstream tasks
