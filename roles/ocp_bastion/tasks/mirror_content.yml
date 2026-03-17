@@ -11,33 +11,49 @@
     dest: "{{ ocp_mirror_dir }}/imageset-config.yaml"
     mode: "0644"
 
-- name: Check if mirror content already exists
+- name: Check for oc-mirror completion marker
   ansible.builtin.stat:
-    path: "{{ ocp_mirror_dir }}/working-dir/cluster-resources"
-  register: _mirror_content
+    path: "{{ ocp_mirror_dir }}/.mirror-complete"
+  register: _mirror_done
 
 - name: Mirror OCP content to Quay registry
-  ansible.builtin.command:
-    cmd: >-
-      /usr/local/bin/oc-mirror
-      --config {{ ocp_mirror_dir }}/imageset-config.yaml
-      docker://{{ quay_hostname }}:{{ quay_port }}
-      --v2
-      --workspace file://{{ ocp_mirror_dir }}/working-dir
-      --authfile /root/.docker/config.json
-  when: not _mirror_content.stat.exists
-  changed_when: true
-  async: 7200
-  poll: 60
+  when: not _mirror_done.stat.exists
+  block:
+    - name: Run oc-mirror
+      ansible.builtin.command:
+        cmd: >-
+          /usr/local/bin/oc-mirror
+          --config {{ ocp_mirror_dir }}/imageset-config.yaml
+          docker://{{ quay_hostname }}:{{ quay_port }}
+          --v2
+          --workspace file://{{ ocp_mirror_dir }}/working-dir
+          --authfile /root/.docker/config.json
+      register: _oc_mirror_result
+      changed_when: true
+      retries: 5
+      delay: 30
+      until: _oc_mirror_result.rc == 0
+      async: 7200
+      poll: 60
 
-- name: Verify mirror content exists
-  ansible.builtin.stat:
-    path: "{{ ocp_mirror_dir }}/working-dir/cluster-resources"
-  register: _mirror_verify
+    - name: Verify IDMS files were generated
+      ansible.builtin.find:
+        paths: "{{ ocp_mirror_dir }}/working-dir/cluster-resources"
+        patterns: "imageDigestMirrorSet*.yaml"
+      register: _idms_check
 
-- name: Fail if mirror content is missing
-  ansible.builtin.assert:
-    that: _mirror_verify.stat.exists
-    fail_msg: >-
-      Mirror content not found at {{ ocp_mirror_dir }}/working-dir/cluster-resources.
-      The oc-mirror operation may have failed.
+    - name: Fail if IDMS files are missing
+      ansible.builtin.assert:
+        that: _idms_check.files | length > 0
+        fail_msg: >-
+          No imageDigestMirrorSet files found in
+          {{ ocp_mirror_dir }}/working-dir/cluster-resources.
+          The oc-mirror operation may have completed but produced no usable output.
+
+    - name: Write completion marker
+      ansible.builtin.copy:
+        content: |
+          mirror_completed: {{ ansible_date_time.iso8601 }}
+          idms_files: {{ _idms_check.files | map(attribute='path') | list | to_nice_json }}
+        dest: "{{ ocp_mirror_dir }}/.mirror-complete"
+        mode: "0644"
