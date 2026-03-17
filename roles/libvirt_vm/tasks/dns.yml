@@ -3,10 +3,7 @@
   ansible.builtin.set_fact:
     _dns_entries: "{{ _dns_entries | default([]) + [_entry] }}"
   vars:
-    _fqdn: >-
-      {{ item.name -}}
-      {% if item.openshift | default(false) %}.{{ cluster_name }}{% endif -%}
-      .{{ dns_domain }}
+    _fqdn: "{{ item.name }}{% if cluster_name | default('') | length > 0 %}.{{ cluster_name }}{% endif %}.{{ dns_domain }}"
     _ip: "{{ item.networks | selectattr('ip', 'defined') | map(attribute='ip') | first | default('') }}"
     _entry:
       fqdn: "{{ _fqdn }}"

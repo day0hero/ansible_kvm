@@ -17,10 +17,7 @@
       ansible.builtin.set_fact:
         _vm_fqdns: "{{ _vm_fqdns + [_fqdn] }}"
       vars:
-        _fqdn: >-
-          {{ item.name -}}
-          {% if item.openshift | default(false) %}.{{ cluster_name }}{% endif -%}
-          .{{ dns_domain }}
+        _fqdn: "{{ item.name }}{% if cluster_name | default('') | length > 0 %}.{{ cluster_name }}{% endif %}.{{ dns_domain }}"
       loop: "{{ _all_vms_combined }}"
       loop_control:
         label: "{{ item.name }}"
@@ -57,10 +54,7 @@
         path: "{{ _storage }}/{{ _fqdn }}-{{ item.1.name }}.qcow2"
         state: absent
       vars:
-        _fqdn: >-
-          {{ item.0.name -}}
-          {% if item.0.openshift | default(false) %}.{{ cluster_name }}{% endif -%}
-          .{{ dns_domain }}
+        _fqdn: "{{ item.0.name }}{% if cluster_name | default('') | length > 0 %}.{{ cluster_name }}{% endif %}.{{ dns_domain }}"
       loop: "{{ _all_vms_combined | subelements('extra_disks', skip_missing=True) }}"
       loop_control:
         label: "{{ item.0.name }}-{{ item.1.name }}"
@@ -85,10 +79,7 @@
           '<host ip="{{ _ip }}"><hostname>{{ _fqdn }}</hostname></host>'
           --live --config
       vars:
-        _fqdn: >-
-          {{ item.name -}}
-          {% if item.openshift | default(false) %}.{{ cluster_name }}{% endif -%}
-          .{{ dns_domain }}
+        _fqdn: "{{ item.name }}{% if cluster_name | default('') | length > 0 %}.{{ cluster_name }}{% endif %}.{{ dns_domain }}"
         _ip: "{{ item.networks | selectattr('ip', 'defined') | map(attribute='ip') | first | default('') }}"
       loop: "{{ _all_vms_combined }}"
       loop_control:

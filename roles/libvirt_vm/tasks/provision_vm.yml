@@ -4,22 +4,10 @@
 - name: "{{ _current_vm.name }} | Set VM facts"
   ansible.builtin.set_fact:
     _vm_hostname: "{{ _current_vm.name }}"
-    _vm_fqdn: >-
-      {{ _current_vm.name -}}
-      {% if _current_vm.openshift | default(false) %}.{{ cluster_name }}{% endif -%}
-      .{{ dns_domain }}
-    _vm_disk: >-
-      {{ storage_pool_path }}/{{ _current_vm.name -}}
-      {% if _current_vm.openshift | default(false) %}.{{ cluster_name }}{% endif -%}
-      .{{ dns_domain }}.qcow2
-    _vm_cidata: >-
-      {{ storage_pool_path }}/{{ _current_vm.name -}}
-      {% if _current_vm.openshift | default(false) %}.{{ cluster_name }}{% endif -%}
-      .{{ dns_domain }}-cidata.iso
-    _vm_ci_dir: >-
-      /tmp/cloud-init-{{ _current_vm.name -}}
-      {% if _current_vm.openshift | default(false) %}.{{ cluster_name }}{% endif -%}
-      .{{ dns_domain }}
+    _vm_fqdn: "{{ _current_vm.name }}{% if cluster_name | default('') | length > 0 %}.{{ cluster_name }}{% endif %}.{{ dns_domain }}"
+    _vm_disk: "{{ storage_pool_path }}/{{ _current_vm.name }}{% if cluster_name | default('') | length > 0 %}.{{ cluster_name }}{% endif %}.{{ dns_domain }}.qcow2"
+    _vm_cidata: "{{ storage_pool_path }}/{{ _current_vm.name }}{% if cluster_name | default('') | length > 0 %}.{{ cluster_name }}{% endif %}.{{ dns_domain }}-cidata.iso"
+    _vm_ci_dir: "/tmp/cloud-init-{{ _current_vm.name }}{% if cluster_name | default('') | length > 0 %}.{{ cluster_name }}{% endif %}.{{ dns_domain }}"
     _vm_base_image: "{{ _current_vm.base_image | default(base_image) }}"
     _vm_os_variant: "{{ _current_vm.os_variant | default(os_variant) }}"
     _vm_is_openshift: "{{ _current_vm.openshift | default(false) | bool }}"

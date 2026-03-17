@@ -46,8 +46,6 @@ extra_dns_entries:
     ip: "{{ bastion_ip }}"
   - fqdn: "api-int.{{ cluster_name }}.{{ dns_domain }}"
     ip: "{{ bastion_ip }}"
-  - fqdn: "{{ quay_hostname }}"
-    ip: "{{ bastion_ip }}"
 
 # -- OCP versions --
 ocp_version: "stable-4.21"
@@ -63,7 +61,7 @@ ocp_backup_dir: "/root/{{ cluster_name }}-backup"
 # -- Quay mirror registry --
 mirror_registry_dir: "/opt/mirror-registry"
 mirror_registry_version: "1.3.11"
-quay_hostname: "bastion.{{ dns_domain }}"
+quay_hostname: "bastion.{{ cluster_name }}.{{ dns_domain }}"
 quay_port: 8443
 quay_init_user: "init"
 
