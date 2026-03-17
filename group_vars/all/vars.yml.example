@@ -101,7 +101,7 @@ ocp_additional_images:
 # -- Infrastructure VMs (cloud-init based) --
 infra_vms:
   - name: bastion
-    vcpus: 2
+    vcpus: 4
     memory: 8192
     disk_size: 200
     packages:
