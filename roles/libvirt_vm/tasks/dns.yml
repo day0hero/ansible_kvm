@@ -24,22 +24,37 @@
   ansible.builtin.set_fact:
     _dns_entries: "{{ _dns_entries | unique }}"
 
-- name: Add DNS host entries to airgap network
+- name: Group DNS entries by IP address
+  ansible.builtin.set_fact:
+    _dns_by_ip: "{{ _dns_entries | default([]) | groupby('ip') }}"
+
+- name: Add grouped DNS host entries to airgap network
   ansible.builtin.command:
     cmd: >-
       virsh net-update {{ libvirt_network_airgap.name }}
       add-last dns-host
-      '<host ip="{{ entry.ip }}"><hostname>{{ entry.fqdn }}</hostname></host>'
+      '<host ip="{{ item.0 }}">{% for e in item.1 %}<hostname>{{ e.fqdn }}</hostname>{% endfor %}</host>'
       --live --config
-  loop: "{{ _dns_entries | default([]) }}"
+  loop: "{{ _dns_by_ip }}"
   loop_control:
-    loop_var: entry
-    label: "{{ entry.fqdn }} -> {{ entry.ip }}"
-  register: _dns_update
-  failed_when:
-    - _dns_update.rc != 0
-    - "'already' not in _dns_update.stderr"
-  changed_when: _dns_update.rc == 0
+    label: "{{ item.0 }} -> {{ item.1 | map(attribute='fqdn') | join(', ') }}"
+  register: _dns_add
+  changed_when: _dns_add.rc == 0
+  failed_when: false
+
+- name: Modify existing DNS host entries in airgap network
+  ansible.builtin.command:
+    cmd: >-
+      virsh net-update {{ libvirt_network_airgap.name }}
+      modify dns-host
+      '<host ip="{{ item.item.0 }}">{% for e in item.item.1 %}<hostname>{{ e.fqdn }}</hostname>{% endfor %}</host>'
+      --live --config
+  loop: "{{ _dns_add.results | selectattr('rc', 'ne', 0) | list }}"
+  loop_control:
+    label: "{{ item.item.0 }}"
+  register: _dns_modify
+  changed_when: _dns_modify.rc == 0
+  failed_when: _dns_modify.rc != 0
 
 - name: Set domain for split DNS routing
   ansible.builtin.set_fact:
