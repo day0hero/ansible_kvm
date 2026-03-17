@@ -1,0 +1,48 @@
+---
+# -- Libvirt connection --
+libvirt_uri: "qemu:///system"
+
+# -- Cluster / DNS --
+cluster_name: ""
+dns_domain: "example.local"
+
+# -- SSH --
+ssh_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+# -- Base image defaults (can be overridden per-VM) --
+base_image: ""
+os_variant: "centos-stream9"
+image_cache_dir: "/var/lib/libvirt/images"
+
+# -- Storage --
+storage_pool_path: "/var/lib/libvirt/images"
+
+# -- Libvirt networks --
+libvirt_network_nat:
+  name: default
+  bridge: virbr0
+  forward_mode: nat
+  ip: 192.168.122.1
+  prefix: 24
+  dhcp_start: 192.168.122.2
+  dhcp_end: 192.168.122.254
+
+libvirt_network_airgap:
+  name: airgap
+  bridge: virbr-ag
+  ip: 192.168.127.1
+  prefix: 24
+  dhcp_start: 192.168.127.2
+  dhcp_end: 192.168.127.254
+
+# -- DNS --
+manage_dns: true
+apps_wildcard_ip: ""
+extra_dns_entries: []
+
+# -- Ignition (for RHCOS VMs) --
+ignition_dir: "/var/lib/libvirt/ignition"
+bastion_ip: ""
+
+# -- VM list (override from playbook) --
+vm_list: []

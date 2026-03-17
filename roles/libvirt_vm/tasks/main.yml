@@ -1,0 +1,20 @@
+---
+- name: Preflight checks
+  ansible.builtin.include_tasks: preflight.yml
+
+- name: Configure libvirt networks
+  ansible.builtin.include_tasks: networks.yml
+
+- name: Configure storage pool and base image
+  ansible.builtin.include_tasks: storage.yml
+
+- name: Provision virtual machines
+  ansible.builtin.include_tasks: provision_vm.yml
+  loop: "{{ vm_list }}"
+  loop_control:
+    loop_var: _current_vm
+    label: "{{ _current_vm.name }}"
+
+- name: Configure DNS
+  ansible.builtin.include_tasks: dns.yml
+  when: manage_dns | bool

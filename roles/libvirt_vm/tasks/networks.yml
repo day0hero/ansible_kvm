@@ -1,0 +1,41 @@
+---
+- name: Get list of existing libvirt networks
+  community.libvirt.virt_net:
+    command: list_nets
+  register: _existing_nets
+
+- name: Define NAT network
+  community.libvirt.virt_net:
+    command: define
+    name: "{{ libvirt_network_nat.name }}"
+    xml: "{{ lookup('template', 'net-nat.xml.j2') }}"
+  when: libvirt_network_nat.name not in _existing_nets.list_nets
+
+- name: Start NAT network
+  community.libvirt.virt_net:
+    command: start
+    name: "{{ libvirt_network_nat.name }}"
+  when: libvirt_network_nat.name not in _existing_nets.list_nets
+
+- name: Autostart NAT network
+  community.libvirt.virt_net:
+    autostart: true
+    name: "{{ libvirt_network_nat.name }}"
+
+- name: Define airgap (isolated) network
+  community.libvirt.virt_net:
+    command: define
+    name: "{{ libvirt_network_airgap.name }}"
+    xml: "{{ lookup('template', 'net-isolated.xml.j2') }}"
+  when: libvirt_network_airgap.name not in _existing_nets.list_nets
+
+- name: Start airgap network
+  community.libvirt.virt_net:
+    command: start
+    name: "{{ libvirt_network_airgap.name }}"
+  when: libvirt_network_airgap.name not in _existing_nets.list_nets
+
+- name: Autostart airgap network
+  community.libvirt.virt_net:
+    autostart: true
+    name: "{{ libvirt_network_airgap.name }}"

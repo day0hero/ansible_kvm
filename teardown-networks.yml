@@ -1,0 +1,44 @@
+---
+- name: Tear down libvirt networks
+  hosts: pn50
+  gather_facts: false
+  environment:
+    LIBVIRT_DEFAULT_URI: "{{ libvirt_uri | default('qemu:///system') }}"
+
+  vars:
+    _nat_name: "{{ (libvirt_network_nat | default({})).name | default('default') }}"
+    _airgap_name: "{{ (libvirt_network_airgap | default({})).name | default('airgap') }}"
+
+  tasks:
+    - name: Get list of existing libvirt networks
+      community.libvirt.virt_net:
+        command: list_nets
+      register: _existing_nets
+
+    - name: Destroy NAT network
+      community.libvirt.virt_net:
+        command: destroy
+        name: "{{ _nat_name }}"
+      when: _nat_name in _existing_nets.list_nets
+      failed_when: false
+
+    - name: Undefine NAT network
+      community.libvirt.virt_net:
+        command: undefine
+        name: "{{ _nat_name }}"
+      when: _nat_name in _existing_nets.list_nets
+      failed_when: false
+
+    - name: Destroy airgap network
+      community.libvirt.virt_net:
+        command: destroy
+        name: "{{ _airgap_name }}"
+      when: _airgap_name in _existing_nets.list_nets
+      failed_when: false
+
+    - name: Undefine airgap network
+      community.libvirt.virt_net:
+        command: undefine
+        name: "{{ _airgap_name }}"
+      when: _airgap_name in _existing_nets.list_nets
+      failed_when: false

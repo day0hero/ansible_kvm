@@ -1,0 +1,11 @@
+---
+- name: Provision infrastructure VMs
+  hosts: pn50
+  gather_facts: true
+  environment:
+    LIBVIRT_DEFAULT_URI: "{{ libvirt_uri }}"
+
+  roles:
+    - role: libvirt_vm
+      vars:
+        vm_list: "{{ infra_vms }}"

@@ -1,0 +1,17 @@
+---
+- name: Validate required variables
+  ansible.builtin.assert:
+    that:
+      - dns_domain | length > 0
+      - vm_list | length > 0
+    fail_msg: "dns_domain and vm_list must be defined and non-empty"
+
+- name: Check for required binaries
+  ansible.builtin.command:
+    cmd: "which {{ item }}"
+  loop:
+    - qemu-img
+    - virt-install
+    - virsh
+    - genisoimage
+  changed_when: false

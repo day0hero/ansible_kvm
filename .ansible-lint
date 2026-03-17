@@ -1,0 +1,11 @@
+---
+profile: production
+
+exclude_paths:
+  - ocp/
+  - examples/
+  - merge-pull-secret.sh
+  - .git/
+
+skip_list:
+  - yaml[line-length]

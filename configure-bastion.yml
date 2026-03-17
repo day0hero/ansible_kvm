@@ -1,0 +1,8 @@
+---
+- name: Configure bastion node for disconnected OCP installation
+  hosts: bastion
+  gather_facts: true
+  become: true
+
+  roles:
+    - ocp_bastion

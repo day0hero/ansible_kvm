@@ -1,0 +1,74 @@
+{% set _bootstrap_vms = ocp_vms | selectattr('ocp_role', 'equalto', 'bootstrap') | list %}
+{% set _master_vms = ocp_vms | selectattr('ocp_role', 'equalto', 'master') | list %}
+{% set _worker_vms = ocp_vms | selectattr('ocp_role', 'defined') | selectattr('ocp_role', 'equalto', 'worker') | list %}
+{% set _ingress_vms = _worker_vms if _worker_vms | length > 0 else _master_vms %}
+{% macro vm_fqdn(vm) %}{{ vm.name }}.{{ cluster_name }}.{{ dns_domain }}{% endmacro %}
+global
+    log stdout format raw local0
+    maxconn 4096
+
+defaults
+    log     global
+    timeout connect 10s
+    timeout client  60s
+    timeout server  60s
+
+listen stats
+    bind *:9000
+    mode http
+    stats enable
+    stats uri /
+    stats refresh 10s
+
+frontend api
+    bind *:6443
+    mode tcp
+    option tcplog
+    default_backend api-backends
+
+backend api-backends
+    mode tcp
+    balance roundrobin
+    option ssl-hello-chk
+{% for vm in _bootstrap_vms + _master_vms %}
+    server {{ vm.name }} {{ vm_fqdn(vm) }}:6443 check
+{% endfor %}
+
+frontend machine-config
+    bind *:22623
+    mode tcp
+    option tcplog
+    default_backend machine-config-backends
+
+backend machine-config-backends
+    mode tcp
+    balance roundrobin
+{% for vm in _bootstrap_vms + _master_vms %}
+    server {{ vm.name }} {{ vm_fqdn(vm) }}:22623 check
+{% endfor %}
+
+frontend ingress-https
+    bind *:443
+    mode tcp
+    option tcplog
+    default_backend ingress-https-backends
+
+backend ingress-https-backends
+    mode tcp
+    balance roundrobin
+{% for vm in _ingress_vms %}
+    server {{ vm.name }} {{ vm_fqdn(vm) }}:443 check
+{% endfor %}
+
+frontend ingress-http
+    bind *:80
+    mode tcp
+    option tcplog
+    default_backend ingress-http-backends
+
+backend ingress-http-backends
+    mode tcp
+    balance roundrobin
+{% for vm in _ingress_vms %}
+    server {{ vm.name }} {{ vm_fqdn(vm) }}:80 check
+{% endfor %}

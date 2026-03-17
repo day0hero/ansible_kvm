@@ -1,0 +1,35 @@
+---
+# Example imageset-config.yaml for oc-mirror
+# The Ansible role uses a Jinja2 template (roles/ocp_bastion/templates/imageset-config.yaml.j2)
+# to dynamically generate this file. This is provided as a reference.
+apiVersion: mirror.openshift.io/v2alpha1
+kind: ImageSetConfiguration
+mirror:
+  platform:
+    channels:
+      - name: stable-4.21
+        minVersion: "4.21.0"
+        maxVersion: "4.21.0"
+    architectures:
+      - amd64
+
+  operators:
+    - catalog: registry.redhat.io/redhat/redhat-operator-index:v4.21
+      packages:
+        - name: local-storage-operator
+        - name: odf-operator
+        - name: openshift-gitops-operator
+        - name: openshift-pipelines-operator-rh
+        - name: compliance-operator
+        - name: rhacs-operator
+        - name: quay-operator
+
+    - catalog: registry.redhat.io/redhat/certified-operator-index:v4.21
+      packages: []
+
+    - catalog: registry.redhat.io/redhat/community-operator-index:v4.21
+      packages: []
+
+  additionalImages:
+    - name: registry.redhat.io/ubi9/ubi:latest
+    - name: registry.redhat.io/ubi9/ubi-minimal:latest

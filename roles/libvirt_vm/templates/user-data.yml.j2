@@ -1,0 +1,44 @@
+#cloud-config
+hostname: {{ _vm_hostname }}
+fqdn: {{ _vm_fqdn }}
+manage_etc_hosts: true
+
+users:
+  - default
+  - name: ansible
+    gecos: Ansible User
+    groups: wheel
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - "{{ ssh_public_key }}"
+
+ssh_authorized_keys:
+  - "{{ ssh_public_key }}"
+{% if _current_vm.package_update | default(false) %}
+
+package_update: true
+package_upgrade: true
+{% endif %}
+{% if _current_vm.packages | default([]) | length > 0 %}
+
+packages:
+{% for pkg in _current_vm.packages %}
+  - {{ pkg }}
+{% endfor %}
+{% endif %}
+
+growpart:
+  mode: auto
+  devices: ["/"]
+  ignore_growroot_disabled: false
+
+resize_rootfs: true
+
+runcmd:
+  - systemctl enable --now serial-getty@ttyS0.service
+{% if _current_vm.rh_subscription | default(false) %}
+  - subscription-manager register --activationkey="{{ rhsm_activation_key }}" --org="{{ rhsm_org_id }}"
+{% endif %}
+  - cloud-init clean --logs
+  - touch /etc/cloud/cloud-init.disabled

@@ -1,0 +1,26 @@
+network:
+  version: 2
+  ethernets:
+{% for nic in _current_vm.networks %}
+{% set nic_name = "net" ~ loop.index0 %}
+    {{ nic_name }}:
+      match:
+        macaddress: "{{ _vm_macs[loop.index0] }}"
+      set-name: "{{ nic_name }}"
+{% if nic.ip is defined %}
+      addresses:
+        - {{ nic.ip }}/{{ nic.prefix | default(24) }}
+{% if nic.gateway is defined %}
+      routes:
+        - to: default
+          via: {{ nic.gateway }}
+{% endif %}
+{% if nic.dns_server is defined %}
+      nameservers:
+        addresses:
+          - {{ nic.dns_server }}
+{% endif %}
+{% else %}
+      dhcp4: true
+{% endif %}
+{% endfor %}

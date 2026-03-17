@@ -1,0 +1,10 @@
+<network>
+  <name>{{ libvirt_network_nat.name }}</name>
+  <forward mode="nat"/>
+  <bridge name="{{ libvirt_network_nat.bridge }}" stp="on" delay="0"/>
+  <ip address="{{ libvirt_network_nat.ip }}" prefix="{{ libvirt_network_nat.prefix }}">
+    <dhcp>
+      <range start="{{ libvirt_network_nat.dhcp_start }}" end="{{ libvirt_network_nat.dhcp_end }}"/>
+    </dhcp>
+  </ip>
+</network>

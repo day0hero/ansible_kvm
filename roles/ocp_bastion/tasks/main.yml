@@ -1,0 +1,15 @@
+---
+- name: Install packages and update system
+  ansible.builtin.include_tasks: packages.yml
+
+- name: Download and install OCP tools
+  ansible.builtin.include_tasks: ocp_tools.yml
+
+- name: Install Quay mirror registry
+  ansible.builtin.include_tasks: mirror_registry.yml
+
+- name: Configure pull secrets
+  ansible.builtin.include_tasks: pull_secret.yml
+
+- name: Mirror OCP content
+  ansible.builtin.include_tasks: mirror_content.yml

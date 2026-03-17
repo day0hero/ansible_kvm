@@ -1,0 +1,66 @@
+---
+- name: Build DNS entries from VM list
+  ansible.builtin.set_fact:
+    _dns_entries: "{{ _dns_entries | default([]) + [_entry] }}"
+  vars:
+    _fqdn: >-
+      {{ item.name -}}
+      {% if item.openshift | default(false) %}.{{ cluster_name }}{% endif -%}
+      .{{ dns_domain }}
+    _ip: "{{ item.networks | selectattr('ip', 'defined') | map(attribute='ip') | first | default('') }}"
+    _entry:
+      fqdn: "{{ _fqdn }}"
+      ip: "{{ _ip }}"
+  loop: "{{ vm_list }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: (item.networks | selectattr('ip', 'defined') | map(attribute='ip') | first | default('')) | length > 0
+
+- name: Append extra DNS entries
+  ansible.builtin.set_fact:
+    _dns_entries: "{{ (_dns_entries | default([])) + (extra_dns_entries | default([])) }}"
+
+- name: Add DNS host entries to airgap network
+  ansible.builtin.command:
+    cmd: >-
+      virsh net-update {{ libvirt_network_airgap.name }}
+      add-last dns-host
+      '<host ip="{{ entry.ip }}"><hostname>{{ entry.fqdn }}</hostname></host>'
+      --live --config
+  loop: "{{ _dns_entries | default([]) }}"
+  loop_control:
+    loop_var: entry
+    label: "{{ entry.fqdn }} -> {{ entry.ip }}"
+  register: _dns_update
+  failed_when:
+    - _dns_update.rc != 0
+    - "'already exists' not in _dns_update.stderr"
+  changed_when: _dns_update.rc == 0
+
+- name: Set domain for split DNS routing
+  ansible.builtin.set_fact:
+    _dns_domain: "{{ (cluster_name ~ '.') if cluster_name | default('') | length > 0 else '' }}{{ dns_domain }}"
+
+- name: Apply split DNS - set DNS server for airgap bridge
+  ansible.builtin.command:
+    cmd: "resolvectl dns {{ libvirt_network_airgap.bridge }} {{ libvirt_network_airgap.ip }}"
+  become: true
+  changed_when: true
+
+- name: Apply split DNS - route domain to airgap bridge
+  ansible.builtin.command:
+    cmd: "resolvectl domain {{ libvirt_network_airgap.bridge }} ~{{ _dns_domain }}"
+  become: true
+  changed_when: true
+
+- name: Deploy NM dispatcher script for persistent split DNS
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      if [ "$1" = "{{ libvirt_network_airgap.bridge }}" ] && [ "$2" = "up" ]; then
+          resolvectl dns {{ libvirt_network_airgap.bridge }} {{ libvirt_network_airgap.ip }}
+          resolvectl domain {{ libvirt_network_airgap.bridge }} ~{{ _dns_domain }}
+      fi
+    dest: "/etc/NetworkManager/dispatcher.d/99-dns-{{ libvirt_network_airgap.name }}"
+    mode: "0755"
+  become: true

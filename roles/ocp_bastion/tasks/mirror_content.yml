@@ -1,0 +1,43 @@
+---
+- name: Create mirror working directory
+  ansible.builtin.file:
+    path: "{{ ocp_mirror_dir }}/working-dir"
+    state: directory
+    mode: "0755"
+
+- name: Template imageset-config.yaml
+  ansible.builtin.template:
+    src: imageset-config.yaml.j2
+    dest: "{{ ocp_mirror_dir }}/imageset-config.yaml"
+    mode: "0644"
+
+- name: Check if mirror content already exists
+  ansible.builtin.stat:
+    path: "{{ ocp_mirror_dir }}/working-dir/cluster-resources"
+  register: _mirror_content
+
+- name: Mirror OCP content to Quay registry
+  ansible.builtin.command:
+    cmd: >-
+      /usr/local/bin/oc-mirror
+      --config {{ ocp_mirror_dir }}/imageset-config.yaml
+      docker://{{ quay_hostname }}:{{ quay_port }}
+      --v2
+      --workspace file://{{ ocp_mirror_dir }}/working-dir
+      --authfile /root/.docker/config.json
+  when: not _mirror_content.stat.exists
+  changed_when: true
+  async: 7200
+  poll: 60
+
+- name: Verify mirror content exists
+  ansible.builtin.stat:
+    path: "{{ ocp_mirror_dir }}/working-dir/cluster-resources"
+  register: _mirror_verify
+
+- name: Fail if mirror content is missing
+  ansible.builtin.assert:
+    that: _mirror_verify.stat.exists
+    fail_msg: >-
+      Mirror content not found at {{ ocp_mirror_dir }}/working-dir/cluster-resources.
+      The oc-mirror operation may have failed.

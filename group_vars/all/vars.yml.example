@@ -1,0 +1,151 @@
+---
+# -- Libvirt connection --
+libvirt_uri: "qemu:///system"
+
+# -- Cluster / DNS --
+cluster_name: "ocp"
+dns_domain: "rhuk.local"
+
+# -- SSH --
+ssh_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+# -- Base image defaults (can be overridden per-VM) --
+base_image: "rhel-9.7-base.qcow2"
+os_variant: "rhel9-unknown"
+image_cache_dir: "/var/lib/libvirt/images"
+
+# -- Storage --
+storage_pool_path: "/var/lib/libvirt/images"
+
+# -- Libvirt networks --
+libvirt_network_nat:
+  name: default
+  bridge: virbr0
+  forward_mode: nat
+  ip: 192.168.122.1
+  prefix: 24
+  dhcp_start: 192.168.122.2
+  dhcp_end: 192.168.122.254
+
+libvirt_network_airgap:
+  name: airgap
+  bridge: virbr-ag
+  ip: 192.168.127.1
+  prefix: 24
+  dhcp_start: 192.168.127.2
+  dhcp_end: 192.168.127.254
+
+# -- DNS --
+manage_dns: true
+bastion_ip: "192.168.127.5"
+apps_wildcard_ip: "192.168.127.5"
+
+# Extra DNS entries added to the airgap network (api, api-int, quay, etc.)
+extra_dns_entries:
+  - fqdn: "api.{{ cluster_name }}.{{ dns_domain }}"
+    ip: "{{ bastion_ip }}"
+  - fqdn: "api-int.{{ cluster_name }}.{{ dns_domain }}"
+    ip: "{{ bastion_ip }}"
+  - fqdn: "{{ quay_hostname }}"
+    ip: "{{ bastion_ip }}"
+
+# -- OCP versions --
+ocp_version: "stable-4.21"
+ocp_release_version: "4.21.0"
+
+# -- OCP mirror / install paths --
+ocp_mirror_base_url: "https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp"
+ocp_mirror_dir: "/opt/ocp-mirror"
+ocp_webroot: "/opt/ocp-webroot"
+ocp_install_dir: "/root/{{ cluster_name }}"
+ocp_backup_dir: "/root/{{ cluster_name }}-backup"
+
+# -- Quay mirror registry --
+mirror_registry_dir: "/opt/mirror-registry"
+mirror_registry_version: "1.3.11"
+quay_hostname: "bastion.{{ dns_domain }}"
+quay_port: 8443
+quay_init_user: "init"
+
+# -- Pull secret --
+pull_secret_path: "~/.pullsecret.json"
+
+# -- OCP networking --
+cluster_network_cidr: "10.128.0.0/14"
+cluster_network_host_prefix: 23
+service_network_cidr: "172.30.0.0/16"
+machine_network_cidr: "192.168.127.0/24"
+
+# -- Ignition (for RHCOS VMs) --
+ignition_dir: "/var/lib/libvirt/ignition"
+
+# -- Operators to mirror --
+ocp_operators:
+  - catalog: "registry.redhat.io/redhat/redhat-operator-index:v4.21"
+    packages:
+      - local-storage-operator
+      - odf-operator
+      - openshift-gitops-operator
+      - openshift-pipelines-operator-rh
+      - compliance-operator
+      - rhacs-operator
+      - quay-operator
+  - catalog: "registry.redhat.io/redhat/certified-operator-index:v4.21"
+    packages: []
+  - catalog: "registry.redhat.io/redhat/community-operator-index:v4.21"
+    packages: []
+
+# -- Additional images to mirror --
+ocp_additional_images:
+  - "registry.redhat.io/ubi9/ubi:latest"
+  - "registry.redhat.io/ubi9/ubi-minimal:latest"
+
+# -- Infrastructure VMs (cloud-init based) --
+infra_vms:
+  - name: bastion
+    vcpus: 2
+    memory: 8192
+    disk_size: 200
+    packages:
+      - dnsmasq
+      - tree
+      - tmux
+      - vim
+      - podman
+    package_update: true
+    networks:
+      - type: bridge
+        source: br0
+      - type: network
+        source: airgap
+        ip: 192.168.127.5
+        prefix: 24
+
+# -- OpenShift VMs (ignition based) --
+ocp_vms:
+  - name: bootstrap
+    openshift: true
+    ocp_role: bootstrap
+    base_image: "rhcos-disc.qcow2"
+    os_variant: "rhel9-unknown"
+    vcpus: 2
+    memory: 8192
+    disk_size: 140
+    networks:
+      - type: network
+        source: airgap
+        ip: 192.168.127.10
+        prefix: 24
+  - name: cp
+    openshift: true
+    ocp_role: master
+    base_image: "rhcos-disc.qcow2"
+    os_variant: "rhel9-unknown"
+    vcpus: 4
+    memory: 12288
+    disk_size: 140
+    networks:
+      - type: network
+        source: airgap
+        ip: 192.168.127.11
+        prefix: 24

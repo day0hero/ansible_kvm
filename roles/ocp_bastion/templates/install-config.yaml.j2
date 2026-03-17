@@ -1,0 +1,38 @@
+apiVersion: v1
+baseDomain: {{ dns_domain }}
+metadata:
+  name: {{ cluster_name }}
+networking:
+  clusterNetwork:
+    - cidr: {{ cluster_network_cidr }}
+      hostPrefix: {{ cluster_network_host_prefix }}
+  machineNetwork:
+    - cidr: {{ machine_network_cidr }}
+  serviceNetwork:
+    - {{ service_network_cidr }}
+  networkType: OVNKubernetes
+compute:
+  - name: worker
+    replicas: {{ ocp_vms | selectattr('ocp_role', 'equalto', 'worker') | list | length }}
+controlPlane:
+  name: master
+  replicas: {{ ocp_vms | selectattr('ocp_role', 'equalto', 'master') | list | length }}
+platform:
+  none: {}
+fips: false
+pullSecret: '{{ _merged_pull_secret | to_json }}'
+sshKey: '{{ ssh_public_key }}'
+{% if _ca_cert_content is defined %}
+additionalTrustBundle: |
+{{ _ca_cert_content | indent(2, true) }}
+{% endif %}
+{% if _image_digest_sources | default([]) | length > 0 %}
+imageDigestSources:
+{% for entry in _image_digest_sources %}
+  - mirrors:
+{% for mirror in entry.mirrors %}
+      - {{ mirror }}
+{% endfor %}
+    source: {{ entry.source }}
+{% endfor %}
+{% endif %}

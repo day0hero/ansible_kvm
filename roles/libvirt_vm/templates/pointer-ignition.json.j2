@@ -1,0 +1,59 @@
+{% set _ocp_role = _current_vm.ocp_role | default('worker') %}
+{% set _ign_source = _ocp_role ~ '.ign' %}
+{% set _nic = _current_vm.networks | selectattr('ip', 'defined') | first %}
+{% set _mac = _vm_macs[_current_vm.networks.index(_nic)] %}
+{% set _ip = _nic.ip %}
+{% set _prefix = _nic.prefix | default(24) %}
+{% set _gateway = _nic.gateway | default(libvirt_network_airgap.ip) %}
+{% set _dns_server = _nic.dns_server | default(libvirt_network_airgap.ip) %}
+{% set _cluster_domain = cluster_name ~ '.' ~ dns_domain %}
+{% set _nm_keyfile %}
+[connection]
+id=static-airgap
+type=ethernet
+autoconnect=true
+
+[ethernet]
+mac-address={{ _mac }}
+
+[ipv4]
+method=manual
+address1={{ _ip }}/{{ _prefix }},{{ _gateway }}
+dns={{ _dns_server }};
+dns-search={{ _cluster_domain }};
+
+[ipv6]
+method=disabled
+{% endset %}
+{
+  "ignition": {
+    "version": "3.2.0",
+    "config": {
+      "merge": [
+        {
+          "source": "http://{{ bastion_ip }}:8080/{{ _ign_source }}"
+        }
+      ]
+    }
+  },
+  "storage": {
+    "files": [
+      {
+        "path": "/etc/hostname",
+        "mode": 420,
+        "overwrite": true,
+        "contents": {
+          "source": "data:,{{ _vm_fqdn }}"
+        }
+      },
+      {
+        "path": "/etc/NetworkManager/system-connections/static-airgap.nmconnection",
+        "mode": 384,
+        "overwrite": true,
+        "contents": {
+          "source": "data:text/plain;charset=utf-8;base64,{{ _nm_keyfile | b64encode }}"
+        }
+      }
+    ]
+  }
+}

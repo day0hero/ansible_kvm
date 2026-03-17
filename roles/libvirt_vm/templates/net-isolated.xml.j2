@@ -1,0 +1,16 @@
+<network xmlns:dnsmasq='http://libvirt.org/schemas/network/dnsmasq/1.0'>
+  <name>{{ libvirt_network_airgap.name }}</name>
+  <domain name='{{ (cluster_name ~ ".") if cluster_name | default("") | length > 0 else "" }}{{ dns_domain }}' localOnly='yes'/>
+  <bridge name="{{ libvirt_network_airgap.bridge }}" stp="on" delay="0"/>
+  <ip address="{{ libvirt_network_airgap.ip }}" prefix="{{ libvirt_network_airgap.prefix }}">
+    <dhcp>
+      <range start="{{ libvirt_network_airgap.dhcp_start }}" end="{{ libvirt_network_airgap.dhcp_end }}"/>
+    </dhcp>
+  </ip>
+  <dns/>
+{% if apps_wildcard_ip | default('') | length > 0 %}
+  <dnsmasq:options>
+    <dnsmasq:option value='address=/.apps.{{ (cluster_name ~ ".") if cluster_name | default("") | length > 0 else "" }}{{ dns_domain }}/{{ apps_wildcard_ip }}'/>
+  </dnsmasq:options>
+{% endif %}
+</network>

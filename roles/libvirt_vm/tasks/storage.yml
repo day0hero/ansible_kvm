@@ -1,0 +1,30 @@
+---
+- name: Verify storage directory exists
+  ansible.builtin.stat:
+    path: "{{ storage_pool_path }}"
+  register: _storage_dir
+
+- name: Fail if storage directory is missing
+  ansible.builtin.assert:
+    that: _storage_dir.stat.exists and _storage_dir.stat.isdir
+    fail_msg: "Storage directory {{ storage_pool_path }} does not exist. Create it or adjust storage_pool_path."
+
+- name: Collect all unique base images across VMs
+  ansible.builtin.set_fact:
+    _all_base_images: "{{ vm_list | map(attribute='base_image', default=base_image) | unique | list }}"
+
+- name: Verify all base images exist
+  ansible.builtin.stat:
+    path: "{{ image_cache_dir }}/{{ item }}"
+  register: _base_image_stats
+  loop: "{{ _all_base_images }}"
+
+- name: Fail if any base image is missing
+  ansible.builtin.assert:
+    that: item.stat.exists
+    fail_msg: >-
+      Base image not found at {{ image_cache_dir }}/{{ item.item }}.
+      Place the qcow2 file there before running this playbook.
+  loop: "{{ _base_image_stats.results }}"
+  loop_control:
+    label: "{{ item.item }}"

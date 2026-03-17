@@ -1,0 +1,223 @@
+---
+# Play 1: Generate OCP installation artifacts on the bastion
+- name: Prepare OCP installation on bastion
+  hosts: bastion
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Read mirror registry password
+      ansible.builtin.slurp:
+        src: /root/.quay-init-password
+      register: _quay_pw
+
+    - name: Set mirror registry password fact
+      ansible.builtin.set_fact:
+        quay_init_password: "{{ _quay_pw.content | b64decode | trim }}"
+
+    - name: Read pull secret
+      ansible.builtin.slurp:
+        src: /root/.pullsecret.json
+      register: _pull_secret_raw
+
+    - name: Build merged pull secret
+      ansible.builtin.set_fact:
+        _merged_pull_secret: >-
+          {{ _pull_secret_raw.content | b64decode | from_json |
+             combine({"auths": {_quay_url: {"auth": _quay_auth}}}, recursive=true) }}
+      vars:
+        _quay_url: "{{ quay_hostname }}:{{ quay_port }}"
+        _quay_auth: "{{ (quay_init_user ~ ':' ~ quay_init_password) | b64encode }}"
+
+    - name: Read Quay root CA certificate
+      ansible.builtin.slurp:
+        src: /root/quay-install/quay-rootCA/rootCA.pem
+      register: _ca_cert
+
+    - name: Set CA cert fact
+      ansible.builtin.set_fact:
+        _ca_cert_content: "{{ _ca_cert.content | b64decode }}"
+
+    - name: Find IDMS files from mirror output
+      ansible.builtin.find:
+        paths: "{{ ocp_mirror_dir }}/working-dir/cluster-resources"
+        patterns: "imageDigestMirrorSet*.yaml"
+      register: _idms_files
+
+    - name: Read IDMS files
+      ansible.builtin.slurp:
+        src: "{{ item.path }}"
+      loop: "{{ _idms_files.files }}"
+      loop_control:
+        label: "{{ item.path | basename }}"
+      register: _idms_contents
+
+    - name: Parse imageDigestSources from IDMS files
+      ansible.builtin.set_fact:
+        _image_digest_sources: >-
+          {{ _image_digest_sources | default([]) +
+             (item.content | b64decode | from_yaml).spec.imageDigestMirrors }}
+      loop: "{{ _idms_contents.results }}"
+      loop_control:
+        label: "{{ item.item.path | basename }}"
+
+    - name: Create install directory
+      ansible.builtin.file:
+        path: "{{ ocp_install_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Create backup directory
+      ansible.builtin.file:
+        path: "{{ ocp_backup_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Template install-config.yaml
+      ansible.builtin.template:
+        src: roles/ocp_bastion/templates/install-config.yaml.j2
+        dest: "{{ ocp_install_dir }}/install-config.yaml"
+        mode: "0644"
+
+    - name: Backup install-config.yaml
+      ansible.builtin.copy:
+        src: "{{ ocp_install_dir }}/install-config.yaml"
+        dest: "{{ ocp_backup_dir }}/install-config.yaml"
+        remote_src: true
+        mode: "0644"
+
+    - name: Generate OCP manifests
+      ansible.builtin.command:
+        cmd: "openshift-install create manifests --dir {{ ocp_install_dir }}"
+        creates: "{{ ocp_install_dir }}/manifests"
+
+    - name: Generate OCP ignition configs
+      ansible.builtin.command:
+        cmd: "openshift-install create ignition-configs --dir {{ ocp_install_dir }}"
+        creates: "{{ ocp_install_dir }}/bootstrap.ign"
+
+    - name: Ensure webroot directory exists
+      ansible.builtin.file:
+        path: "{{ ocp_webroot }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copy ignition files to webroot
+      ansible.builtin.copy:
+        src: "{{ ocp_install_dir }}/{{ item }}"
+        dest: "{{ ocp_webroot }}/{{ item }}"
+        remote_src: true
+        mode: "0644"
+      loop:
+        - bootstrap.ign
+        - master.ign
+        - worker.ign
+
+    - name: Create OCP config directory
+      ansible.builtin.file:
+        path: /root/ocp
+        state: directory
+        mode: "0755"
+
+    - name: Template haproxy.cfg
+      ansible.builtin.template:
+        src: roles/ocp_bastion/templates/haproxy.cfg.j2
+        dest: /root/ocp/haproxy.cfg
+        mode: "0644"
+
+    - name: Template Containerfile.haproxy
+      ansible.builtin.template:
+        src: roles/ocp_bastion/templates/Containerfile.haproxy.j2
+        dest: /root/ocp/Containerfile.haproxy
+        mode: "0644"
+
+    - name: Build HAProxy container image
+      containers.podman.podman_image:
+        name: ocp-haproxy
+        path: /root/ocp
+        build:
+          file: Containerfile.haproxy
+        force: true
+      failed_when: false
+      register: _haproxy_build
+
+    - name: Build HAProxy container image (fallback)
+      ansible.builtin.command:
+        cmd: "podman build -t ocp-haproxy -f /root/ocp/Containerfile.haproxy /root/ocp"
+      when: _haproxy_build is failed
+      changed_when: true
+
+    - name: Stop existing httpd container
+      ansible.builtin.command:
+        cmd: podman rm -f ocp-httpd
+      changed_when: true
+      failed_when: false
+
+    - name: Start httpd container
+      ansible.builtin.command:
+        cmd: >-
+          podman run -d
+          --name ocp-httpd
+          --restart always
+          -p 8080:8080
+          -v {{ ocp_webroot }}:/var/www/html:Z
+          registry.access.redhat.com/ubi9/httpd-24
+      changed_when: true
+
+    - name: Stop existing haproxy container
+      ansible.builtin.command:
+        cmd: podman rm -f ocp-haproxy
+      changed_when: true
+      failed_when: false
+
+    - name: Start haproxy container
+      ansible.builtin.command:
+        cmd: >-
+          podman run -d
+          --name ocp-haproxy
+          --restart always
+          --net host
+          -v /root/ocp/haproxy.cfg:/etc/haproxy/haproxy.cfg:Z
+          ocp-haproxy
+      changed_when: true
+
+    - name: Verify httpd container is running
+      ansible.builtin.command:
+        cmd: podman ps --filter name=ocp-httpd --format "{{ '{{' }}.Status{{ '}}' }}"
+      register: _httpd_status
+      changed_when: false
+      failed_when: "'Up' not in _httpd_status.stdout"
+
+    - name: Verify haproxy container is running
+      ansible.builtin.command:
+        cmd: podman ps --filter name=ocp-haproxy --format "{{ '{{' }}.Status{{ '}}' }}"
+      register: _haproxy_status
+      changed_when: false
+      failed_when: "'Up' not in _haproxy_status.stdout"
+
+# Play 2: Add OCP DNS entries and provision OCP VMs on the hypervisor
+- name: Provision OCP cluster nodes
+  hosts: pn50
+  gather_facts: true
+  environment:
+    LIBVIRT_DEFAULT_URI: "{{ libvirt_uri }}"
+
+  roles:
+    - role: libvirt_vm
+      vars:
+        vm_list: "{{ ocp_vms }}"
+
+  post_tasks:
+    - name: Display next steps
+      ansible.builtin.debug:
+        msg:
+          - "OCP cluster nodes have been provisioned."
+          - "Monitor bootstrap progress:"
+          - "  ssh ansible@{{ bastion_ip }}"
+          - "  openshift-install wait-for bootstrap-complete --dir {{ ocp_install_dir }} --log-level debug"
+          - ""
+          - "After bootstrap completes:"
+          - "  1. Remove bootstrap entries from /root/ocp/haproxy.cfg on bastion"
+          - "  2. Restart haproxy: podman restart ocp-haproxy"
+          - "  3. Destroy bootstrap VM: virsh destroy bootstrap.{{ cluster_name }}.{{ dns_domain }}"
+          - "  4. openshift-install wait-for install-complete --dir {{ ocp_install_dir }} --log-level debug"
