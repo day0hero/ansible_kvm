@@ -20,6 +20,10 @@
   ansible.builtin.set_fact:
     _dns_entries: "{{ (_dns_entries | default([])) + (extra_dns_entries | default([])) }}"
 
+- name: Deduplicate DNS entries
+  ansible.builtin.set_fact:
+    _dns_entries: "{{ _dns_entries | unique }}"
+
 - name: Add DNS host entries to airgap network
   ansible.builtin.command:
     cmd: >-
@@ -34,7 +38,7 @@
   register: _dns_update
   failed_when:
     - _dns_update.rc != 0
-    - "'already exists' not in _dns_update.stderr"
+    - "'already' not in _dns_update.stderr"
   changed_when: _dns_update.rc == 0
 
 - name: Set domain for split DNS routing
