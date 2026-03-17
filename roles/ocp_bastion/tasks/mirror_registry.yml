@@ -73,13 +73,34 @@
   ansible.builtin.set_fact:
     quay_init_password: "{{ _quay_pw_final.content | b64decode | trim }}"
 
+- name: Find Quay root CA certificate
+  ansible.builtin.find:
+    paths:
+      - /root/quay-install
+      - "{{ mirror_registry_dir }}"
+    patterns:
+      - "rootCA.pem"
+      - "rootca.pem"
+    recurse: true
+  register: _quay_ca_files
+
+- name: Fail if Quay root CA not found
+  ansible.builtin.assert:
+    that: _quay_ca_files.files | length > 0
+    fail_msg: >-
+      Could not find Quay root CA certificate.
+      Searched /root/quay-install and {{ mirror_registry_dir }} for rootCA.pem.
+
+- name: Set Quay root CA path
+  ansible.builtin.set_fact:
+    _quay_ca_path: "{{ _quay_ca_files.files | sort(attribute='path') | map(attribute='path') | first }}"
+
 - name: Copy Quay root CA to system trust anchors
   ansible.builtin.copy:
-    src: /root/quay-install/quay-rootCA/rootCA.pem
+    src: "{{ _quay_ca_path }}"
     dest: /etc/pki/ca-trust/source/anchors/quay-rootCA.pem
     remote_src: true
     mode: "0644"
-  notify: Update CA trust
 
 - name: Update CA trust store
   ansible.builtin.command:

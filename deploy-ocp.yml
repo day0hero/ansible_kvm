@@ -29,9 +29,27 @@
         _quay_url: "{{ quay_hostname }}:{{ quay_port }}"
         _quay_auth: "{{ (quay_init_user ~ ':' ~ quay_init_password) | b64encode }}"
 
+    - name: Find Quay root CA certificate
+      ansible.builtin.find:
+        paths:
+          - /root/quay-install
+          - "{{ mirror_registry_dir }}"
+        patterns:
+          - "rootCA.pem"
+          - "rootca.pem"
+        recurse: true
+      register: _quay_ca_files
+
+    - name: Fail if Quay root CA not found
+      ansible.builtin.assert:
+        that: _quay_ca_files.files | length > 0
+        fail_msg: >-
+          Could not find Quay root CA certificate.
+          Searched /root/quay-install and {{ mirror_registry_dir }} for rootCA.pem.
+
     - name: Read Quay root CA certificate
       ansible.builtin.slurp:
-        src: /root/quay-install/quay-rootCA/rootCA.pem
+        src: "{{ _quay_ca_files.files | sort(attribute='path') | map(attribute='path') | first }}"
       register: _ca_cert
 
     - name: Set CA cert fact
