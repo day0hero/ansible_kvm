@@ -2,7 +2,7 @@
 {% set _master_vms = ocp_vms | selectattr('ocp_role', 'equalto', 'master') | list %}
 {% set _worker_vms = ocp_vms | selectattr('ocp_role', 'defined') | selectattr('ocp_role', 'equalto', 'worker') | list %}
 {% set _ingress_vms = _worker_vms if _worker_vms | length > 0 else _master_vms %}
-{% macro vm_fqdn(vm) %}{{ vm.name }}.{{ cluster_name }}.{{ dns_domain }}{% endmacro %}
+{% macro vm_ip(vm) %}{{ vm.networks | map(attribute='ip') | first }}{% endmacro %}
 global
     log stdout format raw local0
     maxconn 4096
@@ -31,7 +31,7 @@ backend api-backends
     balance roundrobin
     option ssl-hello-chk
 {% for vm in _bootstrap_vms + _master_vms %}
-    server {{ vm.name }} {{ vm_fqdn(vm) }}:6443 check
+    server {{ vm.name }} {{ vm_ip(vm) }}:6443 check
 {% endfor %}
 
 frontend machine-config
@@ -44,7 +44,7 @@ backend machine-config-backends
     mode tcp
     balance roundrobin
 {% for vm in _bootstrap_vms + _master_vms %}
-    server {{ vm.name }} {{ vm_fqdn(vm) }}:22623 check
+    server {{ vm.name }} {{ vm_ip(vm) }}:22623 check
 {% endfor %}
 
 frontend ingress-https
@@ -57,7 +57,7 @@ backend ingress-https-backends
     mode tcp
     balance roundrobin
 {% for vm in _ingress_vms %}
-    server {{ vm.name }} {{ vm_fqdn(vm) }}:443 check
+    server {{ vm.name }} {{ vm_ip(vm) }}:443 check
 {% endfor %}
 
 frontend ingress-http
@@ -70,5 +70,5 @@ backend ingress-http-backends
     mode tcp
     balance roundrobin
 {% for vm in _ingress_vms %}
-    server {{ vm.name }} {{ vm_fqdn(vm) }}:80 check
+    server {{ vm.name }} {{ vm_ip(vm) }}:80 check
 {% endfor %}

@@ -1,0 +1,100 @@
+---
+# Tear down only OCP cluster nodes (bootstrap + control plane), leaving bastion intact.
+# Also cleans the install directory on the bastion so ignition is regenerated on next deploy.
+- name: Tear down OCP cluster nodes
+  hosts: pn50
+  gather_facts: false
+  environment:
+    LIBVIRT_DEFAULT_URI: "{{ libvirt_uri | default('qemu:///system') }}"
+
+  tasks:
+    - name: Initialise variables
+      ansible.builtin.set_fact:
+        _vm_fqdns: []
+        _storage: "{{ storage_pool_path | default('/var/lib/libvirt/images') }}"
+        _airgap: "{{ libvirt_network_airgap | default({'name': 'airgap', 'bridge': 'virbr-ag'}) }}"
+
+    - name: Build OCP VM FQDN list
+      ansible.builtin.set_fact:
+        _vm_fqdns: "{{ _vm_fqdns + [_fqdn] }}"
+      vars:
+        _fqdn: "{{ item.name }}{% if cluster_name | default('') | length > 0 %}.{{ cluster_name }}{% endif %}.{{ dns_domain }}"
+      loop: "{{ ocp_vms }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Get running VMs
+      community.libvirt.virt:
+        command: list_vms
+      register: _all_vms
+
+    - name: Destroy OCP VMs
+      community.libvirt.virt:
+        name: "{{ item }}"
+        state: destroyed
+      loop: "{{ _vm_fqdns }}"
+      when: item in _all_vms.list_vms
+      failed_when: false
+
+    - name: Undefine OCP VMs
+      ansible.builtin.command:
+        cmd: "virsh undefine {{ item }} --nvram"
+      loop: "{{ _vm_fqdns }}"
+      when: item in _all_vms.list_vms
+      failed_when: false
+      changed_when: true
+
+    - name: Remove OCP VM disk images
+      ansible.builtin.file:
+        path: "{{ _storage }}/{{ item }}.qcow2"
+        state: absent
+      loop: "{{ _vm_fqdns }}"
+
+    - name: Remove OCP ignition files
+      ansible.builtin.file:
+        path: "{{ ignition_dir | default('/var/lib/libvirt/ignition') }}/{{ item }}.ign"
+        state: absent
+      loop: "{{ _vm_fqdns }}"
+
+    - name: Remove OCP DNS entries from airgap network
+      ansible.builtin.command:
+        cmd: >-
+          virsh net-update {{ _airgap.name }}
+          delete dns-host
+          '<host ip="{{ _ip }}"><hostname>{{ _fqdn }}</hostname></host>'
+          --live --config
+      vars:
+        _fqdn: "{{ item.name }}{% if cluster_name | default('') | length > 0 %}.{{ cluster_name }}{% endif %}.{{ dns_domain }}"
+        _ip: >-
+          {{ item.networks |
+             selectattr('source', 'equalto', _airgap.name) |
+             selectattr('ip', 'defined') |
+             map(attribute='ip') | first |
+             default(item.networks | selectattr('ip', 'defined') | map(attribute='ip') | first | default('')) }}
+      loop: "{{ ocp_vms }}"
+      loop_control:
+        label: "{{ item.name }}"
+      when: (_ip | trim | length) > 0
+      register: _dns_del
+      failed_when: false
+      changed_when: _dns_del.rc | default(1) == 0
+
+- name: Clean OCP install directory on bastion
+  hosts: bastion
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: Remove install directory
+      ansible.builtin.file:
+        path: "{{ ocp_install_dir }}"
+        state: absent
+
+    - name: Stop OCP containers
+      ansible.builtin.command:
+        cmd: "podman rm -f {{ item }}"
+      loop:
+        - ocp-httpd
+        - ocp-haproxy
+      failed_when: false
+      changed_when: true

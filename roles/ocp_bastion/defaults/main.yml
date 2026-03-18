@@ -15,6 +15,9 @@ quay_hostname: "bastion.{{ cluster_name }}.{{ dns_domain }}"
 quay_port: 8443
 quay_init_user: "init"
 
+# -- DNS --
+upstream_dns: "192.168.0.1"
+
 # -- Pull secret --
 pull_secret_path: "~/.pullsecret.json"
 

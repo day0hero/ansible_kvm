@@ -3,7 +3,7 @@ VARS_FILE        := group_vars/all/vars.yml
 CORE_PASSWORD    ?= core
 
 .PHONY: help provision bastion deploy-bastion deploy deploy-all \
-        teardown teardown-networks destroy core-password
+        teardown teardown-ocp teardown-networks destroy core-password
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -22,6 +22,9 @@ deploy: ## Run deploy-ocp.yml (bastion prep + provision OCP nodes)
 	$(ANSIBLE_PLAYBOOK) deploy-ocp.yml
 
 deploy-all: provision bastion deploy ## Run full deployment: provision → configure bastion → deploy OCP
+
+teardown-ocp: ## Destroy OCP nodes only (keeps bastion), cleans install dir
+	$(ANSIBLE_PLAYBOOK) teardown-ocp.yml
 
 teardown: ## Destroy all VMs (infra + OCP)
 	$(ANSIBLE_PLAYBOOK) teardown.yml

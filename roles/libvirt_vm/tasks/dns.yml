@@ -4,7 +4,13 @@
     _dns_entries: "{{ _dns_entries | default([]) + [_entry] }}"
   vars:
     _fqdn: "{{ item.name }}{% if cluster_name | default('') | length > 0 %}.{{ cluster_name }}{% endif %}.{{ dns_domain }}"
-    _ip: "{{ item.networks | selectattr('ip', 'defined') | map(attribute='ip') | first | default('') }}"
+    _airgap_ip: >-
+      {{ item.networks |
+         selectattr('source', 'equalto', libvirt_network_airgap.name) |
+         selectattr('ip', 'defined') |
+         map(attribute='ip') | first | default('') }}
+    _any_ip: "{{ item.networks | selectattr('ip', 'defined') | map(attribute='ip') | first | default('') }}"
+    _ip: "{{ _airgap_ip | trim if (_airgap_ip | trim | length > 0) else _any_ip }}"
     _entry:
       fqdn: "{{ _fqdn }}"
       ip: "{{ _ip }}"
@@ -24,6 +30,34 @@
 - name: Group DNS entries by IP address
   ansible.builtin.set_fact:
     _dns_by_ip: "{{ _dns_entries | default([]) | groupby('ip') }}"
+
+- name: Get current airgap network DNS entries
+  ansible.builtin.shell:
+    cmd: >-
+      set -o pipefail;
+      virsh net-dumpxml {{ libvirt_network_airgap.name }} |
+      grep -oP '<host ip=.+?</host>' || true
+  register: _current_dns_xml
+  changed_when: false
+
+- name: Remove stale DNS entries where hostname moved to a different IP
+  ansible.builtin.shell:
+    cmd: >-
+      set -o pipefail;
+      virsh net-dumpxml {{ libvirt_network_airgap.name }} |
+      grep -oP '<host ip="[^"]+">.*?<hostname>{{ item.fqdn }}</hostname>.*?</host>' |
+      while IFS= read -r entry; do
+        old_ip=$(echo "$entry" | grep -oP 'ip="\K[^"]+');
+        if [ "$old_ip" != "{{ item.ip }}" ]; then
+          virsh net-update {{ libvirt_network_airgap.name }} delete dns-host "$entry" --live --config 2>/dev/null || true;
+        fi;
+      done
+  loop: "{{ _dns_entries }}"
+  loop_control:
+    label: "{{ item.fqdn }}"
+  changed_when: false
+  failed_when: false
+  when: item.fqdn in (_current_dns_xml.stdout | default(''))
 
 - name: Add grouped DNS host entries to airgap network
   ansible.builtin.command:

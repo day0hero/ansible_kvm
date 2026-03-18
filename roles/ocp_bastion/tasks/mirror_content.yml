@@ -38,8 +38,13 @@
               --v2 \
               --workspace file://{{ ocp_mirror_dir }}/working-dir \
               --authfile /root/.docker/config.json \
-              2>&1 | tee -a {{ ocp_mirror_dir }}/oc-mirror.log && exit 0
-            echo "=== attempt ${attempt} failed, retrying in 30s ===" >&2
+              2>&1 | tee -a {{ ocp_mirror_dir }}/oc-mirror.log
+            rc=$?
+            if ls {{ ocp_mirror_dir }}/working-dir/cluster-resources/idms-*.yaml 1>/dev/null 2>&1; then
+              echo "=== IDMS files generated - mirror content available ===" >&2
+              exit 0
+            fi
+            echo "=== attempt ${attempt} failed (rc=${rc}), retrying in 30s ===" >&2
             sleep 30
           done
           exit 1

@@ -1,29 +1,51 @@
 ---
-- name: Identify airgap network interface
-  ansible.builtin.shell:
-    cmd: >-
-      set -o pipefail;
-      ip -o addr show | grep '{{ bastion_ip }}/' | awk '{print $2}'
-  register: _airgap_iface
-  changed_when: false
-
-- name: Set DNS server on airgap interface
-  ansible.builtin.command:
-    cmd: "resolvectl dns {{ _airgap_iface.stdout | trim }} {{ libvirt_network_airgap.ip }}"
-  changed_when: true
-
-- name: Route cluster domain to airgap DNS
-  ansible.builtin.command:
-    cmd: "resolvectl domain {{ _airgap_iface.stdout | trim }} ~{{ cluster_name }}.{{ dns_domain }} ~{{ dns_domain }}"
-  changed_when: true
-
-- name: Deploy NetworkManager dispatcher for persistent split DNS
+- name: Configure dnsmasq for split DNS on bastion
   ansible.builtin.copy:
     content: |
-      #!/bin/bash
-      if [ "$1" = "{{ _airgap_iface.stdout | trim }}" ] && [ "$2" = "up" ]; then
-          resolvectl dns "$1" {{ libvirt_network_airgap.ip }}
-          resolvectl domain "$1" ~{{ cluster_name }}.{{ dns_domain }} ~{{ dns_domain }}
-      fi
-    dest: "/etc/NetworkManager/dispatcher.d/99-dns-airgap"
-    mode: "0755"
+      # Forward cluster and local domain queries to airgap dnsmasq
+      server=/{{ cluster_name }}.{{ dns_domain }}/{{ libvirt_network_airgap.ip }}
+      server=/{{ dns_domain }}/{{ libvirt_network_airgap.ip }}
+      # Forward everything else to upstream DNS
+      server={{ upstream_dns | default('192.168.0.1') }}
+      # Listen only on localhost
+      listen-address=127.0.0.1
+      bind-interfaces
+      no-resolv
+    dest: /etc/dnsmasq.d/ocp-split-dns.conf
+    mode: "0644"
+  register: _dnsmasq_conf
+
+- name: Enable and restart dnsmasq
+  ansible.builtin.systemd:
+    name: dnsmasq
+    state: "{{ 'restarted' if _dnsmasq_conf.changed else 'started' }}"
+    enabled: true
+
+- name: Write resolv.conf to use local dnsmasq
+  ansible.builtin.copy:
+    content: |
+      nameserver 127.0.0.1
+      search {{ cluster_name }}.{{ dns_domain }} {{ dns_domain }}
+    dest: /etc/resolv.conf
+    mode: "0644"
+
+- name: Prevent cloud-init from overwriting resolv.conf
+  ansible.builtin.lineinfile:
+    path: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+    line: "manage_resolv_conf: false"
+    create: true
+    mode: "0644"
+
+- name: Verify cluster DNS resolution
+  ansible.builtin.command:
+    cmd: "dig +short api.{{ cluster_name }}.{{ dns_domain }}"
+  register: _dns_verify
+  changed_when: false
+  failed_when: false
+  retries: 3
+  delay: 2
+  until: _dns_verify.stdout | length > 0
+
+- name: Display DNS verification result
+  ansible.builtin.debug:
+    msg: "api.{{ cluster_name }}.{{ dns_domain }} -> {{ _dns_verify.stdout | default('UNRESOLVED') }}"
