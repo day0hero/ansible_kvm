@@ -19,12 +19,19 @@
 - name: Mirror OCP content to Quay registry
   when: not _mirror_done.stat.exists
   block:
+    - name: Kill any leftover process on oc-mirror cache port
+      ansible.builtin.shell:
+        cmd: "fuser -k 55000/tcp || true"
+      changed_when: true
+      failed_when: false
+
     - name: Run oc-mirror with retries (this will take a long time)
       ansible.builtin.shell:
         cmd: |
           set -o pipefail
           for attempt in 1 2 3 4 5; do
             echo "=== oc-mirror attempt ${attempt} ===" >&2
+            fuser -k 55000/tcp 2>/dev/null || true
             /usr/local/bin/oc-mirror \
               --config {{ ocp_mirror_dir }}/imageset-config.yaml \
               docker://{{ quay_hostname }}:{{ quay_port }} \
