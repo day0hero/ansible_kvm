@@ -88,10 +88,10 @@ ocp_operators:
       - compliance-operator
       - rhacs-operator
       - quay-operator
-  - catalog: "registry.redhat.io/redhat/certified-operator-index:v4.21"
-    packages: []
-  - catalog: "registry.redhat.io/redhat/community-operator-index:v4.21"
-    packages: []
+#  - catalog: "registry.redhat.io/redhat/certified-operator-index:v4.21"
+#    packages: []
+#  - catalog: "registry.redhat.io/redhat/community-operator-index:v4.21"
+#    packages: []
 
 # -- Additional images to mirror --
 ocp_additional_images:
