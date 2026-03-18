@@ -19,22 +19,27 @@
 - name: Mirror OCP content to Quay registry
   when: not _mirror_done.stat.exists
   block:
-    - name: Run oc-mirror (this will take a long time)
-      ansible.builtin.command:
-        cmd: >-
-          /usr/local/bin/oc-mirror
-          --config {{ ocp_mirror_dir }}/imageset-config.yaml
-          docker://{{ quay_hostname }}:{{ quay_port }}
-          --v2
-          --workspace file://{{ ocp_mirror_dir }}/working-dir
-          --authfile /root/.docker/config.json
+    - name: Run oc-mirror with retries (this will take a long time)
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          for attempt in 1 2 3 4 5; do
+            echo "=== oc-mirror attempt ${attempt} ===" >&2
+            /usr/local/bin/oc-mirror \
+              --config {{ ocp_mirror_dir }}/imageset-config.yaml \
+              docker://{{ quay_hostname }}:{{ quay_port }} \
+              --v2 \
+              --workspace file://{{ ocp_mirror_dir }}/working-dir \
+              --authfile /root/.docker/config.json \
+              2>&1 | tee -a {{ ocp_mirror_dir }}/oc-mirror.log && exit 0
+            echo "=== attempt ${attempt} failed, retrying in 30s ===" >&2
+            sleep 30
+          done
+          exit 1
         chdir: "{{ ocp_mirror_dir }}"
-      register: _oc_mirror_result
+      async: 7200
+      poll: 60
       changed_when: true
-      retries: 5
-      delay: 30
-      until: _oc_mirror_result.rc == 0
-      timeout: 7200
 
     - name: Verify IDMS files were generated
       ansible.builtin.find:
