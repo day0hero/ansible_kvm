@@ -1,4 +1,7 @@
 ---
+- name: Configure split DNS for cluster resolution
+  ansible.builtin.include_tasks: dns.yml
+
 - name: Install packages and update system
   ansible.builtin.include_tasks: packages.yml
 

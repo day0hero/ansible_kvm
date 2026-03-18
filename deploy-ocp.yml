@@ -82,18 +82,13 @@
               flatten) }}
       vars:
         _yaml_docs: >-
-          {{ (item.content | b64decode).split('\n---') |
+          {{ (item.content | b64decode |
+              regex_replace('(?m)^---\s*$', '__DOCSEP__')).split('__DOCSEP__') |
              reject('match', '^\s*$') |
              map('from_yaml') | select | list }}
       loop: "{{ _idms_contents.results }}"
       loop_control:
         label: "{{ item.item.path | basename }}"
-
-    - name: Create install directory
-      ansible.builtin.file:
-        path: "{{ ocp_install_dir }}"
-        state: directory
-        mode: "0755"
 
     - name: Create backup directory
       ansible.builtin.file:
@@ -101,28 +96,51 @@
         state: directory
         mode: "0755"
 
-    - name: Template install-config.yaml
-      ansible.builtin.template:
-        src: roles/ocp_bastion/templates/install-config.yaml.j2
-        dest: "{{ ocp_install_dir }}/install-config.yaml"
-        mode: "0644"
+    - name: Check for existing ignition configs
+      ansible.builtin.stat:
+        path: "{{ ocp_install_dir }}/{{ item }}"
+      loop:
+        - bootstrap.ign
+        - master.ign
+        - worker.ign
+      register: _ign_stat
 
-    - name: Backup install-config.yaml
-      ansible.builtin.copy:
-        src: "{{ ocp_install_dir }}/install-config.yaml"
-        dest: "{{ ocp_backup_dir }}/install-config.yaml"
-        remote_src: true
-        mode: "0644"
+    - name: Generate installation artifacts when ignition is incomplete
+      when: _ign_stat.results | map(attribute='stat.exists') | select('equalto', false) | list | length > 0
+      block:
+        - name: Remove incomplete install directory
+          ansible.builtin.file:
+            path: "{{ ocp_install_dir }}"
+            state: absent
 
-    - name: Generate OCP manifests
-      ansible.builtin.command:
-        cmd: "openshift-install create manifests --dir {{ ocp_install_dir }}"
-        creates: "{{ ocp_install_dir }}/manifests"
+        - name: Create install directory
+          ansible.builtin.file:
+            path: "{{ ocp_install_dir }}"
+            state: directory
+            mode: "0755"
 
-    - name: Generate OCP ignition configs
-      ansible.builtin.command:
-        cmd: "openshift-install create ignition-configs --dir {{ ocp_install_dir }}"
-        creates: "{{ ocp_install_dir }}/bootstrap.ign"
+        - name: Template install-config.yaml
+          ansible.builtin.template:
+            src: roles/ocp_bastion/templates/install-config.yaml.j2
+            dest: "{{ ocp_install_dir }}/install-config.yaml"
+            mode: "0644"
+
+        - name: Backup install-config.yaml
+          ansible.builtin.copy:
+            src: "{{ ocp_install_dir }}/install-config.yaml"
+            dest: "{{ ocp_backup_dir }}/install-config.yaml"
+            remote_src: true
+            mode: "0644"
+
+        - name: Generate OCP manifests
+          ansible.builtin.command:
+            cmd: "/usr/local/bin/openshift-install create manifests --dir {{ ocp_install_dir }}"
+          changed_when: true
+
+        - name: Generate OCP ignition configs
+          ansible.builtin.command:
+            cmd: "/usr/local/bin/openshift-install create ignition-configs --dir {{ ocp_install_dir }}"
+          changed_when: true
 
     - name: Ensure webroot directory exists
       ansible.builtin.file:

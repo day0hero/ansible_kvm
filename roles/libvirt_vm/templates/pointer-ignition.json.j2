@@ -55,5 +55,13 @@ method=disabled
         }
       }
     ]
-  }
+  }{% if core_password_hash | default('') | length > 0 %},
+  "passwd": {
+    "users": [
+      {
+        "name": "core",
+        "passwordHash": "{{ core_password_hash }}"
+      }
+    ]
+  }{% endif %}
 }

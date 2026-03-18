@@ -43,6 +43,7 @@ extra_dns_entries: []
 # -- Ignition (for RHCOS VMs) --
 ignition_dir: "/var/lib/libvirt/ignition"
 bastion_ip: ""
+core_password_hash: ""
 
 # -- VM list (override from playbook) --
 vm_list: []

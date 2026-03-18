@@ -19,6 +19,12 @@ network:
       nameservers:
         addresses:
           - {{ nic.dns_server }}
+{% if nic.dns_search is defined %}
+        search:
+{% for domain in nic.dns_search %}
+          - {{ domain }}
+{% endfor %}
+{% endif %}
 {% endif %}
 {% else %}
       dhcp4: true
