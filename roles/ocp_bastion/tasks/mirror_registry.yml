@@ -74,11 +74,12 @@
 - name: Install mirror registry
   ansible.builtin.command:
     cmd: >-
-      {{ mirror_registry_dir }}/mirror-registry install
+      ./mirror-registry install
       --quayHostname {{ quay_hostname }}
       --quayRoot {{ mirror_registry_dir }}
       --initPassword {{ _quay_init_password }}
       -v
+    chdir: "{{ mirror_registry_dir }}"
   when: "'quay-app' not in _quay_running.stdout"
   changed_when: true
   failed_when: false
@@ -87,7 +88,7 @@
 # --- Wait for Quay to become healthy ---
 - name: Wait for Quay registry to become healthy
   ansible.builtin.uri:
-    url: "https://{{ quay_hostname }}:{{ quay_port }}/health/instance"
+    url: "https://localhost:{{ quay_port }}/health/instance"
     validate_certs: false
     status_code: 200
   register: _quay_health
