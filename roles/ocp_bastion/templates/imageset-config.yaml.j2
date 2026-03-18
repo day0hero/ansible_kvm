@@ -4,8 +4,6 @@ mirror:
   platform:
     channels:
       - name: {{ ocp_version }}
-        minVersion: "{{ ocp_release_version }}"
-        maxVersion: "{{ ocp_release_version }}"
     architectures:
       - amd64
 {% if ocp_operators | length > 0 %}
