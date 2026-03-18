@@ -51,16 +51,17 @@
     - name: Verify IDMS files were generated
       ansible.builtin.find:
         paths: "{{ ocp_mirror_dir }}/working-dir/cluster-resources"
-        patterns: "imageDigestMirrorSet*.yaml"
+        patterns:
+          - "idms-*.yaml"
+          - "imageDigestMirrorSet*.yaml"
       register: _idms_check
 
     - name: Fail if IDMS files are missing
       ansible.builtin.assert:
         that: _idms_check.files | length > 0
         fail_msg: >-
-          No imageDigestMirrorSet files found in
-          {{ ocp_mirror_dir }}/working-dir/cluster-resources.
-          The oc-mirror operation may have completed but produced no usable output.
+          No IDMS files found in {{ ocp_mirror_dir }}/working-dir/cluster-resources.
+          Expected idms-*.yaml or imageDigestMirrorSet*.yaml.
 
     - name: Write completion marker
       ansible.builtin.copy:

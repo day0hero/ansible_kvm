@@ -59,7 +59,9 @@
     - name: Find IDMS files from mirror output
       ansible.builtin.find:
         paths: "{{ ocp_mirror_dir }}/working-dir/cluster-resources"
-        patterns: "imageDigestMirrorSet*.yaml"
+        patterns:
+          - "idms-*.yaml"
+          - "imageDigestMirrorSet*.yaml"
       register: _idms_files
 
     - name: Read IDMS files
@@ -74,7 +76,10 @@
       ansible.builtin.set_fact:
         _image_digest_sources: >-
           {{ _image_digest_sources | default([]) +
-             (item.content | b64decode | from_yaml).spec.imageDigestMirrors }}
+             (item.content | b64decode | community.general.from_yaml_all |
+              selectattr('spec', 'defined') |
+              map(attribute='spec.imageDigestMirrors') |
+              flatten) }}
       loop: "{{ _idms_contents.results }}"
       loop_control:
         label: "{{ item.item.path | basename }}"
