@@ -57,14 +57,15 @@
       loop: "{{ _vm_fqdns }}"
 
     - name: Remove OCP DNS entries from airgap network
-      ansible.builtin.command:
+      ansible.builtin.shell:
         cmd: >-
-          virsh net-update {{ _airgap.name }}
-          delete dns-host
-          '<host ip="{{ _ip }}"><hostname>{{ _fqdn }}</hostname></host>'
-          --live --config
+          set -o pipefail;
+          virsh net-dumpxml {{ _airgap.name }} 2>/dev/null |
+          grep -oP '<host ip="{{ _ip }}">[^/]+</host>' |
+          while IFS= read -r entry; do
+            virsh net-update {{ _airgap.name }} delete dns-host "$entry" --live --config 2>/dev/null || true;
+          done
       vars:
-        _fqdn: "{{ item.name }}{% if cluster_name | default('') | length > 0 %}.{{ cluster_name }}{% endif %}.{{ dns_domain }}"
         _ip: >-
           {{ item.networks |
              selectattr('source', 'equalto', _airgap.name) |
@@ -75,9 +76,8 @@
       loop_control:
         label: "{{ item.name }}"
       when: (_ip | trim | length) > 0
-      register: _dns_del
+      changed_when: false
       failed_when: false
-      changed_when: _dns_del.rc | default(1) == 0
 
 - name: Clean OCP install directory on bastion
   hosts: bastion

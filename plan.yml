@@ -1,0 +1,70 @@
+---
+- name: Show provisioning plan
+  hosts: pn50
+  gather_facts: false
+
+  vars:
+    _all_vms: "{{ (infra_vms | default([])) + (ocp_vms | default([])) }}"
+    _cluster_domain: "{{ (cluster_name ~ '.') if cluster_name | default('') | length > 0 else '' }}{{ dns_domain }}"
+    _total_vcpus: "{{ _all_vms | map(attribute='vcpus') | map('int') | sum }}"
+    _total_memory_mb: "{{ _all_vms | map(attribute='memory') | map('int') | sum }}"
+    _total_disk_gb: "{{ _all_vms | map(attribute='disk_size') | map('int') | sum }}"
+
+  tasks:
+    - name: Display provisioning plan
+      ansible.builtin.debug:
+        msg: "{{ _plan }}"
+      vars:
+        _net_lines:
+          - ""
+          - "== Networks =="
+          - "  {{ libvirt_network_nat.name | default('default') }}  (NAT)      {{ libvirt_network_nat.ip }}/{{ libvirt_network_nat.prefix }}  bridge={{ libvirt_network_nat.bridge }}"
+          - "  {{ libvirt_network_airgap.name }}  (isolated)  {{ libvirt_network_airgap.ip }}/{{ libvirt_network_airgap.prefix }}  bridge={{ libvirt_network_airgap.bridge }}  domain={{ _cluster_domain }}"
+          - "  *.apps.{{ _cluster_domain }} -> {{ apps_wildcard_ip | default('n/a') }}"
+        _dns_lines:
+          - ""
+          - "== DNS Entries (airgap dnsmasq) =="
+        _extra_dns: >-
+          {{ (extra_dns_entries | default([])) | map(attribute='fqdn') | zip(
+             (extra_dns_entries | default([])) | map(attribute='ip')
+          ) | map('join', ' -> ') | map('regex_replace', '^', '  ') | list }}
+        _extra_fqdns: "{{ (extra_dns_entries | default([])) | map(attribute='fqdn') | list }}"
+        _vm_dns: >-
+          {% set ns = namespace(lines=[]) -%}
+          {% for vm in _all_vms -%}
+          {%   set fqdn = vm.name ~ '.' ~ _cluster_domain -%}
+          {%   if fqdn not in _extra_fqdns -%}
+          {%     set airgap_ip = vm.networks | selectattr('source', 'equalto', libvirt_network_airgap.name) | selectattr('ip', 'defined') | map(attribute='ip') | first | default('') -%}
+          {%     set any_ip = vm.networks | selectattr('ip', 'defined') | map(attribute='ip') | first | default('') -%}
+          {%     set ip = airgap_ip if airgap_ip | length > 0 else any_ip -%}
+          {%     set _ = ns.lines.append('  ' ~ fqdn ~ ' -> ' ~ ip) -%}
+          {%   endif -%}
+          {% endfor -%}
+          {{ ns.lines | to_json | from_json }}
+        _vm_header:
+          - ""
+          - "== Virtual Machines =="
+        _vm_lines: >-
+          {{ _all_vms | map(attribute='name') | zip(
+             _all_vms | map(attribute='vcpus') | map('string'),
+             _all_vms | map(attribute='memory') | map('string'),
+             _all_vms | map(attribute='disk_size') | map('string'),
+             _all_vms | map(attribute='base_image', default=base_image)
+          ) | map('join', '|') | list }}
+        _vm_formatted: >-
+          {{ _vm_lines | map('regex_replace',
+             '^([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)\|(.+)$',
+             '  \1.' ~ _cluster_domain ~ '  vcpu=\2  mem=\3MB  disk=\4GB  image=\5'
+          ) | list }}
+        _totals:
+          - ""
+          - "== Totals =="
+          - "  VMs: {{ _all_vms | length }}  vCPUs: {{ _total_vcpus }}  Memory: {{ (_total_memory_mb | int / 1024) | round(1) }}GB  Disk: {{ _total_disk_gb }}GB"
+        _storage:
+          - ""
+          - "== Storage =="
+          - "  Pool path: {{ storage_pool_path }}"
+          - "  Image cache: {{ image_cache_dir }}"
+        _plan: >-
+          {{ _net_lines + _dns_lines + _extra_dns + _vm_dns +
+             _vm_header + _vm_formatted + _totals + _storage }}

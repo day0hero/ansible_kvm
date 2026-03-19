@@ -9,7 +9,6 @@
     state: directory
     mode: "0755"
 
-# --- oc client ---
 - name: Check for oc tarball
   ansible.builtin.stat:
     path: /tmp/oc.tar.gz
@@ -38,7 +37,6 @@
     mode: "0755"
   when: not _oc_binary.stat.exists
 
-# --- openshift-install ---
 - name: Check for openshift-install tarball
   ansible.builtin.stat:
     path: /tmp/openshift-install.tar.gz
@@ -66,7 +64,6 @@
     mode: "0755"
   when: not _oi_binary.stat.exists
 
-# --- oc-mirror ---
 - name: Check for oc-mirror tarball
   ansible.builtin.stat:
     path: /tmp/oc-mirror.tar.gz
@@ -91,14 +88,3 @@
     remote_src: true
     mode: "0755"
   when: not _ocm_binary.stat.exists
-
-# --- Ensure permissions ---
-- name: Ensure OCP binaries are executable
-  ansible.builtin.file:
-    path: "/usr/local/bin/{{ item }}"
-    mode: "0755"
-  loop:
-    - oc
-    - kubectl
-    - openshift-install
-    - oc-mirror

@@ -1,13 +1,13 @@
 {
   "type": "excalidraw",
   "version": 2,
-  "source": "hand-crafted",
+  "source": "https://marketplace.visualstudio.com/items?itemName=pomdtr.excalidraw-editor",
   "elements": [
     {
       "id": "hyp-box",
       "type": "rectangle",
-      "x": 20,
-      "y": 20,
+      "x": 19.53125,
+      "y": 20.00390625,
       "width": 2160,
       "height": 1080,
       "angle": 0,
@@ -20,15 +20,18 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 3 },
+      "roundness": {
+        "type": 3
+      },
       "seed": 100001,
-      "version": 1,
-      "versionNonce": 100001,
+      "version": 3,
+      "versionNonce": 1882150924,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916417351,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "a0"
     },
     {
       "id": "hyp-title",
@@ -49,11 +52,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 100002,
-      "version": 1,
-      "versionNonce": 100002,
+      "version": 2,
+      "versionNonce": 736546484,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
       "text": "pn50 Hypervisor  (bootc / KVM / libvirt)",
@@ -63,7 +66,9 @@
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "pn50 Hypervisor  (bootc / KVM / libvirt)",
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "a1",
+      "autoResize": true
     },
     {
       "id": "inet-ellipse",
@@ -82,15 +87,18 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 2 },
+      "roundness": {
+        "type": 2
+      },
       "seed": 100003,
-      "version": 1,
-      "versionNonce": 100003,
+      "version": 2,
+      "versionNonce": 96052876,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "a2"
     },
     {
       "id": "inet-text",
@@ -111,11 +119,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 100004,
-      "version": 1,
-      "versionNonce": 100004,
+      "version": 2,
+      "versionNonce": 151181364,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
       "text": "Internet / Router\n(192.168.0.1)",
@@ -125,7 +133,9 @@
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "Internet / Router\n(192.168.0.1)",
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "a3",
+      "autoResize": true
     },
     {
       "id": "inet-arrow",
@@ -144,21 +154,33 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 2 },
+      "roundness": {
+        "type": 2
+      },
       "seed": 100005,
-      "version": 1,
-      "versionNonce": 100005,
+      "version": 2,
+      "versionNonce": 526185740,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [0, 155]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          155
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
       "startArrowhead": null,
-      "endArrowhead": "arrow"
+      "endArrowhead": "arrow",
+      "index": "a4"
     },
     {
       "id": "net-br0",
@@ -177,15 +199,18 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 3 },
+      "roundness": {
+        "type": 3
+      },
       "seed": 100006,
-      "version": 1,
-      "versionNonce": 100006,
+      "version": 2,
+      "versionNonce": 1222750644,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "a5"
     },
     {
       "id": "net-br0-text",
@@ -206,11 +231,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 100007,
-      "version": 1,
-      "versionNonce": 100007,
+      "version": 2,
+      "versionNonce": 1955754892,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
       "text": "br0 (bridged) — 192.168.0.0/24 — DHCP — public / reachable",
@@ -220,7 +245,9 @@
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "br0 (bridged) — 192.168.0.0/24 — DHCP — public / reachable",
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "a6",
+      "autoResize": true
     },
     {
       "id": "net-default",
@@ -239,15 +266,18 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 3 },
+      "roundness": {
+        "type": 3
+      },
       "seed": 100008,
-      "version": 1,
-      "versionNonce": 100008,
+      "version": 2,
+      "versionNonce": 715742004,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "a7"
     },
     {
       "id": "net-default-text",
@@ -268,11 +298,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 100009,
-      "version": 1,
-      "versionNonce": 100009,
+      "version": 2,
+      "versionNonce": 865346060,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
       "text": "default (NAT) — 192.168.122.0/24 — internet access",
@@ -282,7 +312,9 @@
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "default (NAT) — 192.168.122.0/24 — internet access",
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "a8",
+      "autoResize": true
     },
     {
       "id": "net-airgap",
@@ -301,15 +333,18 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 3 },
+      "roundness": {
+        "type": 3
+      },
       "seed": 100010,
-      "version": 1,
-      "versionNonce": 100010,
+      "version": 2,
+      "versionNonce": 415225012,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "a9"
     },
     {
       "id": "net-airgap-text",
@@ -330,11 +365,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 100011,
-      "version": 1,
-      "versionNonce": 100011,
+      "version": 2,
+      "versionNonce": 861667468,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
       "text": "airgap (isolated) — 192.168.127.0/24 — built-in dnsmasq — *.apps.ocp.rhuk.local wildcard",
@@ -344,7 +379,9 @@
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "airgap (isolated) — 192.168.127.0/24 — built-in dnsmasq — *.apps.ocp.rhuk.local wildcard",
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aA",
+      "autoResize": true
     },
     {
       "id": "vm-bastion",
@@ -363,15 +400,18 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 3 },
+      "roundness": {
+        "type": 3
+      },
       "seed": 100012,
-      "version": 1,
-      "versionNonce": 100012,
+      "version": 2,
+      "versionNonce": 1087053364,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aB"
     },
     {
       "id": "vm-bastion-title",
@@ -392,11 +432,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 100013,
-      "version": 1,
-      "versionNonce": 100013,
+      "version": 2,
+      "versionNonce": 1537478412,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
       "text": "bastion.ocp.rhuk.local",
@@ -406,15 +446,17 @@
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "bastion.ocp.rhuk.local",
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aC",
+      "autoResize": true
     },
     {
       "id": "vm-bastion-details",
       "type": "text",
       "x": 90,
       "y": 472,
-      "width": 380,
-      "height": 280,
+      "width": 258.7889404296875,
+      "height": 192.5,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -427,21 +469,23 @@
       "frameId": null,
       "roundness": null,
       "seed": 100014,
-      "version": 1,
-      "versionNonce": 100014,
+      "version": 5,
+      "versionNonce": 1839209396,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916530995,
       "link": null,
       "locked": false,
-      "text": "net0: DHCP (br0)\nnet1: DHCP (NAT)\nnet2: 192.168.127.5 (airgap)\n\n4 GB RAM / 2 vCPU / 200 GB disk\n\nServices:\n· mirror-registry (Quay) :8443\n· HAProxy  :6443 :22623 :80 :443\n· HTTP server :8080 (ignition)\n· NM dnsmasq (split DNS)",
+      "text": "net0: DHCP (br0)\nnet1: DHCP (NAT)\nnet2: 192.168.127.5 (airgap)\n\n8 GB RAM / 4 vCPU / 200 GB disk\n\nServices:\n· mirror-registry (Quay) :8443\n· HAProxy  :6443 :22623 :80 :443\n· HTTP server :8080 (ignition)\n· NM dnsmasq (split DNS)",
       "fontSize": 14,
       "fontFamily": 1,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "net0: DHCP (br0)\nnet1: DHCP (NAT)\nnet2: 192.168.127.5 (airgap)\n\n4 GB RAM / 2 vCPU / 200 GB disk\n\nServices:\n· mirror-registry (Quay) :8443\n· HAProxy  :6443 :22623 :80 :443\n· HTTP server :8080 (ignition)\n· NM dnsmasq (split DNS)",
-      "lineHeight": 1.25
+      "originalText": "net0: DHCP (br0)\nnet1: DHCP (NAT)\nnet2: 192.168.127.5 (airgap)\n\n8 GB RAM / 4 vCPU / 200 GB disk\n\nServices:\n· mirror-registry (Quay) :8443\n· HAProxy  :6443 :22623 :80 :443\n· HTTP server :8080 (ignition)\n· NM dnsmasq (split DNS)",
+      "lineHeight": 1.25,
+      "index": "aD",
+      "autoResize": true
     },
     {
       "id": "vm-bootstrap",
@@ -460,15 +504,18 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 3 },
+      "roundness": {
+        "type": 3
+      },
       "seed": 100015,
-      "version": 1,
-      "versionNonce": 100015,
+      "version": 2,
+      "versionNonce": 216419724,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aE"
     },
     {
       "id": "vm-bootstrap-title",
@@ -489,11 +536,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 100016,
-      "version": 1,
-      "versionNonce": 100016,
+      "version": 2,
+      "versionNonce": 1436033332,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
       "text": "bootstrap.ocp.rhuk.local",
@@ -503,15 +550,17 @@
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "bootstrap.ocp.rhuk.local",
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aF",
+      "autoResize": true
     },
     {
       "id": "vm-bootstrap-details",
       "type": "text",
       "x": 565,
       "y": 468,
-      "width": 260,
-      "height": 140,
+      "width": 148.88938903808594,
+      "height": 122.5,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -524,21 +573,23 @@
       "frameId": null,
       "roundness": null,
       "seed": 100017,
-      "version": 1,
-      "versionNonce": 100017,
+      "version": 7,
+      "versionNonce": 283812276,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916592626,
       "link": null,
       "locked": false,
-      "text": "192.168.127.10\nRHCOS\nIgnition via fw_cfg\n\n16 GB RAM / 4 vCPU\n120 GB disk\nairgap network only",
+      "text": "192.168.127.10\nRHCOS\nIgnition via fw_cfg\n\n8 GB RAM / 2 vCPU\n120 GB disk\nairgap network only",
       "fontSize": 14,
       "fontFamily": 1,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "192.168.127.10\nRHCOS\nIgnition via fw_cfg\n\n16 GB RAM / 4 vCPU\n120 GB disk\nairgap network only",
-      "lineHeight": 1.25
+      "originalText": "192.168.127.10\nRHCOS\nIgnition via fw_cfg\n\n8 GB RAM / 2 vCPU\n120 GB disk\nairgap network only",
+      "lineHeight": 1.25,
+      "index": "aG",
+      "autoResize": true
     },
     {
       "id": "vm-master0",
@@ -557,23 +608,26 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 3 },
+      "roundness": {
+        "type": 3
+      },
       "seed": 100018,
-      "version": 1,
-      "versionNonce": 100018,
+      "version": 2,
+      "versionNonce": 1172691636,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aH"
     },
     {
       "id": "vm-master0-title",
       "type": "text",
       "x": 905,
       "y": 440,
-      "width": 230,
-      "height": 22,
+      "width": 132.5122528076172,
+      "height": 20,
       "angle": 0,
       "strokeColor": "#7048e8",
       "backgroundColor": "transparent",
@@ -586,29 +640,31 @@
       "frameId": null,
       "roundness": null,
       "seed": 100019,
-      "version": 1,
-      "versionNonce": 100019,
+      "version": 5,
+      "versionNonce": 1234275724,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916491989,
       "link": null,
       "locked": false,
-      "text": "master-0.ocp.rhuk.local",
+      "text": "cp0.ocp.rhuk.local",
       "fontSize": 16,
       "fontFamily": 1,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "master-0.ocp.rhuk.local",
-      "lineHeight": 1.25
+      "originalText": "cp0.ocp.rhuk.local",
+      "lineHeight": 1.25,
+      "index": "aI",
+      "autoResize": true
     },
     {
       "id": "vm-master0-details",
       "type": "text",
       "x": 905,
       "y": 468,
-      "width": 260,
-      "height": 140,
+      "width": 154.18142700195312,
+      "height": 105,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -621,21 +677,23 @@
       "frameId": null,
       "roundness": null,
       "seed": 100020,
-      "version": 1,
-      "versionNonce": 100020,
+      "version": 5,
+      "versionNonce": 1874285620,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916610453,
       "link": null,
       "locked": false,
-      "text": "192.168.127.11\nRHCOS\nIgnition via fw_cfg\nStatic IP (NM keyfile)\n16 GB RAM / 4 vCPU\n120 GB disk",
+      "text": "192.168.127.11\nRHCOS\nIgnition via fw_cfg\nStatic IP (NM keyfile)\n12 GB RAM / 4 vCPU\n120 GB disk",
       "fontSize": 14,
       "fontFamily": 1,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "192.168.127.11\nRHCOS\nIgnition via fw_cfg\nStatic IP (NM keyfile)\n16 GB RAM / 4 vCPU\n120 GB disk",
-      "lineHeight": 1.25
+      "originalText": "192.168.127.11\nRHCOS\nIgnition via fw_cfg\nStatic IP (NM keyfile)\n12 GB RAM / 4 vCPU\n120 GB disk",
+      "lineHeight": 1.25,
+      "index": "aJ",
+      "autoResize": true
     },
     {
       "id": "vm-master1",
@@ -654,23 +712,26 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 3 },
+      "roundness": {
+        "type": 3
+      },
       "seed": 100021,
-      "version": 1,
-      "versionNonce": 100021,
+      "version": 2,
+      "versionNonce": 915286284,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aK"
     },
     {
       "id": "vm-master1-title",
       "type": "text",
       "x": 1235,
       "y": 440,
-      "width": 230,
-      "height": 22,
+      "width": 125.84024047851562,
+      "height": 20,
       "angle": 0,
       "strokeColor": "#7048e8",
       "backgroundColor": "transparent",
@@ -683,29 +744,31 @@
       "frameId": null,
       "roundness": null,
       "seed": 100022,
-      "version": 1,
-      "versionNonce": 100022,
+      "version": 7,
+      "versionNonce": 1056664116,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916498224,
       "link": null,
       "locked": false,
-      "text": "master-1.ocp.rhuk.local",
+      "text": "cp1.ocp.rhuk.local",
       "fontSize": 16,
       "fontFamily": 1,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "master-1.ocp.rhuk.local",
-      "lineHeight": 1.25
+      "originalText": "cp1.ocp.rhuk.local",
+      "lineHeight": 1.25,
+      "index": "aL",
+      "autoResize": true
     },
     {
       "id": "vm-master1-details",
       "type": "text",
       "x": 1235,
       "y": 468,
-      "width": 260,
-      "height": 140,
+      "width": 154.18142700195312,
+      "height": 105,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -718,21 +781,23 @@
       "frameId": null,
       "roundness": null,
       "seed": 100023,
-      "version": 1,
-      "versionNonce": 100023,
+      "version": 5,
+      "versionNonce": 1300042124,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916616998,
       "link": null,
       "locked": false,
-      "text": "192.168.127.12\nRHCOS\nIgnition via fw_cfg\nStatic IP (NM keyfile)\n16 GB RAM / 4 vCPU\n120 GB disk",
+      "text": "192.168.127.12\nRHCOS\nIgnition via fw_cfg\nStatic IP (NM keyfile)\n12 GB RAM / 4 vCPU\n120 GB disk",
       "fontSize": 14,
       "fontFamily": 1,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "192.168.127.12\nRHCOS\nIgnition via fw_cfg\nStatic IP (NM keyfile)\n16 GB RAM / 4 vCPU\n120 GB disk",
-      "lineHeight": 1.25
+      "originalText": "192.168.127.12\nRHCOS\nIgnition via fw_cfg\nStatic IP (NM keyfile)\n12 GB RAM / 4 vCPU\n120 GB disk",
+      "lineHeight": 1.25,
+      "index": "aM",
+      "autoResize": true
     },
     {
       "id": "vm-master2",
@@ -751,23 +816,26 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 3 },
+      "roundness": {
+        "type": 3
+      },
       "seed": 100024,
-      "version": 1,
-      "versionNonce": 100024,
+      "version": 2,
+      "versionNonce": 670295860,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aN"
     },
     {
       "id": "vm-master2-title",
       "type": "text",
       "x": 1565,
       "y": 440,
-      "width": 230,
-      "height": 22,
+      "width": 132.89625549316406,
+      "height": 20,
       "angle": 0,
       "strokeColor": "#7048e8",
       "backgroundColor": "transparent",
@@ -780,29 +848,31 @@
       "frameId": null,
       "roundness": null,
       "seed": 100025,
-      "version": 1,
-      "versionNonce": 100025,
+      "version": 7,
+      "versionNonce": 1852557836,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916505772,
       "link": null,
       "locked": false,
-      "text": "master-2.ocp.rhuk.local",
+      "text": "cp2.ocp.rhuk.local",
       "fontSize": 16,
       "fontFamily": 1,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "master-2.ocp.rhuk.local",
-      "lineHeight": 1.25
+      "originalText": "cp2.ocp.rhuk.local",
+      "lineHeight": 1.25,
+      "index": "aO",
+      "autoResize": true
     },
     {
       "id": "vm-master2-details",
       "type": "text",
       "x": 1565,
       "y": 468,
-      "width": 260,
-      "height": 140,
+      "width": 154.18142700195312,
+      "height": 105,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -815,21 +885,23 @@
       "frameId": null,
       "roundness": null,
       "seed": 100026,
-      "version": 1,
-      "versionNonce": 100026,
+      "version": 5,
+      "versionNonce": 618961420,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916623951,
       "link": null,
       "locked": false,
-      "text": "192.168.127.13\nRHCOS\nIgnition via fw_cfg\nStatic IP (NM keyfile)\n16 GB RAM / 4 vCPU\n120 GB disk",
+      "text": "192.168.127.13\nRHCOS\nIgnition via fw_cfg\nStatic IP (NM keyfile)\n12 GB RAM / 4 vCPU\n120 GB disk",
       "fontSize": 14,
       "fontFamily": 1,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "192.168.127.13\nRHCOS\nIgnition via fw_cfg\nStatic IP (NM keyfile)\n16 GB RAM / 4 vCPU\n120 GB disk",
-      "lineHeight": 1.25
+      "originalText": "192.168.127.13\nRHCOS\nIgnition via fw_cfg\nStatic IP (NM keyfile)\n12 GB RAM / 4 vCPU\n120 GB disk",
+      "lineHeight": 1.25,
+      "index": "aP",
+      "autoResize": true
     },
     {
       "id": "line-bastion-br0",
@@ -848,21 +920,33 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 2 },
+      "roundness": {
+        "type": 2
+      },
       "seed": 100027,
-      "version": 1,
-      "versionNonce": 100027,
+      "version": 2,
+      "versionNonce": 1512682636,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [0, 265]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          265
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
       "startArrowhead": null,
-      "endArrowhead": null
+      "endArrowhead": null,
+      "index": "aQ"
     },
     {
       "id": "line-bastion-default",
@@ -881,21 +965,33 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 2 },
+      "roundness": {
+        "type": 2
+      },
       "seed": 100028,
-      "version": 1,
-      "versionNonce": 100028,
+      "version": 2,
+      "versionNonce": 2112006708,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [0, 170]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          170
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
       "startArrowhead": null,
-      "endArrowhead": null
+      "endArrowhead": null,
+      "index": "aR"
     },
     {
       "id": "line-bastion-airgap",
@@ -914,21 +1010,33 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 2 },
+      "roundness": {
+        "type": 2
+      },
       "seed": 100029,
-      "version": 1,
-      "versionNonce": 100029,
+      "version": 2,
+      "versionNonce": 1184580364,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [0, 75]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          75
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
       "startArrowhead": null,
-      "endArrowhead": null
+      "endArrowhead": null,
+      "index": "aS"
     },
     {
       "id": "line-bootstrap-airgap",
@@ -947,21 +1055,33 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 2 },
+      "roundness": {
+        "type": 2
+      },
       "seed": 100030,
-      "version": 1,
-      "versionNonce": 100030,
+      "version": 2,
+      "versionNonce": 1979138996,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [0, 75]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          75
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
       "startArrowhead": null,
-      "endArrowhead": null
+      "endArrowhead": null,
+      "index": "aT"
     },
     {
       "id": "line-m0-airgap",
@@ -980,21 +1100,33 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 2 },
+      "roundness": {
+        "type": 2
+      },
       "seed": 100031,
-      "version": 1,
-      "versionNonce": 100031,
+      "version": 2,
+      "versionNonce": 2060910988,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [0, 75]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          75
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
       "startArrowhead": null,
-      "endArrowhead": null
+      "endArrowhead": null,
+      "index": "aU"
     },
     {
       "id": "line-m1-airgap",
@@ -1013,21 +1145,33 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 2 },
+      "roundness": {
+        "type": 2
+      },
       "seed": 100032,
-      "version": 1,
-      "versionNonce": 100032,
+      "version": 2,
+      "versionNonce": 54308148,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [0, 75]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          75
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
       "startArrowhead": null,
-      "endArrowhead": null
+      "endArrowhead": null,
+      "index": "aV"
     },
     {
       "id": "line-m2-airgap",
@@ -1046,21 +1190,33 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 2 },
+      "roundness": {
+        "type": 2
+      },
       "seed": 100033,
-      "version": 1,
-      "versionNonce": 100033,
+      "version": 2,
+      "versionNonce": 1578561548,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [0, 75]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          75
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
       "startArrowhead": null,
-      "endArrowhead": null
+      "endArrowhead": null,
+      "index": "aW"
     },
     {
       "id": "panel-dns",
@@ -1079,15 +1235,18 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 3 },
+      "roundness": {
+        "type": 3
+      },
       "seed": 100034,
-      "version": 1,
-      "versionNonce": 100034,
+      "version": 2,
+      "versionNonce": 1729685172,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aX"
     },
     {
       "id": "panel-dns-title",
@@ -1108,11 +1267,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 100035,
-      "version": 1,
-      "versionNonce": 100035,
+      "version": 2,
+      "versionNonce": 1616187020,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
       "text": "DNS Resolution Flow",
@@ -1122,15 +1281,17 @@
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "DNS Resolution Flow",
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aY",
+      "autoResize": true
     },
     {
       "id": "panel-dns-content",
       "type": "text",
-      "x": 90,
-      "y": 872,
-      "width": 580,
-      "height": 175,
+      "x": 101.3046875,
+      "y": 866.07421875,
+      "width": 392.3765869140625,
+      "height": 189.00000000000003,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -1143,21 +1304,23 @@
       "frameId": null,
       "roundness": null,
       "seed": 100036,
-      "version": 1,
-      "versionNonce": 100036,
+      "version": 49,
+      "versionNonce": 960414732,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916425687,
       "link": null,
       "locked": false,
       "text": "pn50 hypervisor:\n  resolvectl → ~ocp.rhuk.local → 192.168.127.1 (virbr-ag)\n  NM dispatcher script for persistence\n\nbastion VM:\n  NM dnsmasq plugin → server=/ocp.rhuk.local/192.168.127.1\n\nairgap dnsmasq (192.168.127.1):\n  Host records: bastion, api, api-int, bootstrap, master-0/1/2\n  Wildcard: *.apps.ocp.rhuk.local → 192.168.127.5",
       "fontSize": 14,
-      "fontFamily": 1,
+      "fontFamily": 6,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "pn50 hypervisor:\n  resolvectl → ~ocp.rhuk.local → 192.168.127.1 (virbr-ag)\n  NM dispatcher script for persistence\n\nbastion VM:\n  NM dnsmasq plugin → server=/ocp.rhuk.local/192.168.127.1\n\nairgap dnsmasq (192.168.127.1):\n  Host records: bastion, api, api-int, bootstrap, master-0/1/2\n  Wildcard: *.apps.ocp.rhuk.local → 192.168.127.5",
-      "lineHeight": 1.25
+      "lineHeight": 1.35,
+      "index": "aZ",
+      "autoResize": true
     },
     {
       "id": "panel-traffic",
@@ -1176,15 +1339,18 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 3 },
+      "roundness": {
+        "type": 3
+      },
       "seed": 100037,
-      "version": 1,
-      "versionNonce": 100037,
+      "version": 2,
+      "versionNonce": 1649106188,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
-      "locked": false
+      "locked": false,
+      "index": "aa"
     },
     {
       "id": "panel-traffic-title",
@@ -1205,11 +1371,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 100038,
-      "version": 1,
-      "versionNonce": 100038,
+      "version": 2,
+      "versionNonce": 1080936884,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
       "text": "Traffic Flow",
@@ -1219,15 +1385,17 @@
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "Traffic Flow",
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "ab",
+      "autoResize": true
     },
     {
       "id": "panel-traffic-content",
       "type": "text",
-      "x": 1160,
-      "y": 872,
-      "width": 550,
-      "height": 175,
+      "x": 1162.59765625,
+      "y": 876.81640625,
+      "width": 390.5146179199219,
+      "height": 151.20000000000002,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -1240,21 +1408,23 @@
       "frameId": null,
       "roundness": null,
       "seed": 100039,
-      "version": 1,
-      "versionNonce": 100039,
+      "version": 35,
+      "versionNonce": 20682804,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916472553,
       "link": null,
       "locked": false,
-      "text": "API (control plane):\n  api.ocp.rhuk.local:6443 → bastion HAProxy → masters:6443\n\nMachine Config:\n  api-int:22623 → bastion HAProxy → masters:22623\n\nIngress:\n  *.apps.ocp.rhuk.local → bastion HAProxy → masters\n\nImage pulls (disconnected):\n  masters → bastion:8443 (mirror-registry via airgap)",
+      "text": "API (control plane):\n  api.ocp.rhuk.local:6443 → bastion HAProxy → masters:6443\nMachine Config:\n  api-int:22623 → bastion HAProxy → masters:22623\nIngress:\n  *.apps.ocp.rhuk.local → bastion HAProxy → masters\nImage pulls (disconnected):\n  masters → bastion:8443 (mirror-registry via airgap)",
       "fontSize": 14,
-      "fontFamily": 1,
+      "fontFamily": 6,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "API (control plane):\n  api.ocp.rhuk.local:6443 → bastion HAProxy → masters:6443\n\nMachine Config:\n  api-int:22623 → bastion HAProxy → masters:22623\n\nIngress:\n  *.apps.ocp.rhuk.local → bastion HAProxy → masters\n\nImage pulls (disconnected):\n  masters → bastion:8443 (mirror-registry via airgap)",
-      "lineHeight": 1.25
+      "originalText": "API (control plane):\n  api.ocp.rhuk.local:6443 → bastion HAProxy → masters:6443\nMachine Config:\n  api-int:22623 → bastion HAProxy → masters:22623\nIngress:\n  *.apps.ocp.rhuk.local → bastion HAProxy → masters\nImage pulls (disconnected):\n  masters → bastion:8443 (mirror-registry via airgap)",
+      "lineHeight": 1.35,
+      "index": "ac",
+      "autoResize": true
     },
     {
       "id": "label-networks",
@@ -1275,11 +1445,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 100040,
-      "version": 1,
-      "versionNonce": 100040,
+      "version": 2,
+      "versionNonce": 150106932,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
       "text": "NETWORKS",
@@ -1289,7 +1459,9 @@
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "NETWORKS",
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "ad",
+      "autoResize": true
     },
     {
       "id": "label-vms",
@@ -1310,11 +1482,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 100041,
-      "version": 1,
-      "versionNonce": 100041,
+      "version": 2,
+      "versionNonce": 201886220,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
       "text": "VIRTUAL MACHINES",
@@ -1324,7 +1496,9 @@
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "VIRTUAL MACHINES",
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "ae",
+      "autoResize": true
     },
     {
       "id": "arrow-haproxy-masters",
@@ -1343,21 +1517,33 @@
       "opacity": 70,
       "groupIds": [],
       "frameId": null,
-      "roundness": { "type": 2 },
+      "roundness": {
+        "type": 2
+      },
       "seed": 100042,
-      "version": 1,
-      "versionNonce": 100042,
+      "version": 2,
+      "versionNonce": 2116414644,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [400, 0]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          400,
+          0
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
       "startArrowhead": null,
-      "endArrowhead": "arrow"
+      "endArrowhead": "arrow",
+      "index": "af"
     },
     {
       "id": "arrow-haproxy-label",
@@ -1378,11 +1564,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 100043,
-      "version": 1,
-      "versionNonce": 100043,
+      "version": 2,
+      "versionNonce": 1359177868,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
       "text": "HAProxy → api:6443, ingress:80/443",
@@ -1392,7 +1578,9 @@
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "HAProxy → api:6443, ingress:80/443",
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "ag",
+      "autoResize": true
     },
     {
       "id": "arrow-images-label",
@@ -1413,11 +1601,11 @@
       "frameId": null,
       "roundness": null,
       "seed": 100044,
-      "version": 1,
-      "versionNonce": 100044,
+      "version": 2,
+      "versionNonce": 1101936180,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1710700000000,
+      "boundElements": [],
+      "updated": 1773916362051,
       "link": null,
       "locked": false,
       "text": "← masters pull images from mirror-registry :8443",
@@ -1427,11 +1615,15 @@
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "← masters pull images from mirror-registry :8443",
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "ah",
+      "autoResize": true
     }
   ],
   "appState": {
-    "gridSize": null,
+    "gridSize": 20,
+    "gridStep": 5,
+    "gridModeEnabled": false,
     "viewBackgroundColor": "#ffffff"
   },
   "files": {}

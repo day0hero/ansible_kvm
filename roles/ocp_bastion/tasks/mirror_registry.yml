@@ -5,7 +5,6 @@
     state: directory
     mode: "0755"
 
-# --- Download ---
 - name: Check if mirror-registry tarball already downloaded
   ansible.builtin.stat:
     path: /tmp/mirror-registry.tar.gz
@@ -20,7 +19,6 @@
     mode: "0644"
   when: not _mr_tarball.stat.exists
 
-# --- Extract ---
 - name: Check if mirror-registry binary already extracted
   ansible.builtin.stat:
     path: "{{ mirror_registry_dir }}/mirror-registry"
@@ -34,7 +32,6 @@
     mode: "0755"
   when: not _mr_binary.stat.exists
 
-# --- Password ---
 - name: Check for existing mirror registry password
   ansible.builtin.stat:
     path: /root/.quay-init-password
@@ -63,7 +60,6 @@
     mode: "0600"
   when: not _quay_pw_file.stat.exists
 
-# --- Install ---
 - name: Check if mirror registry is already installed
   ansible.builtin.command:
     cmd: podman ps --filter name=quay-app --format "{{ '{{' }}.Names{{ '}}' }}"
@@ -85,7 +81,6 @@
   failed_when: false
   register: _mr_install
 
-# --- Wait for Quay to become healthy ---
 - name: Wait for Quay registry to become healthy
   ansible.builtin.uri:
     url: "https://localhost:{{ quay_port }}/health/instance"
@@ -96,15 +91,9 @@
   delay: 20
   until: _quay_health.status == 200
 
-# --- Set password fact for downstream tasks ---
-- name: Read mirror registry password for downstream tasks
-  ansible.builtin.slurp:
-    src: /root/.quay-init-password
-  register: _quay_pw_final
-
 - name: Set mirror registry password fact
   ansible.builtin.set_fact:
-    quay_init_password: "{{ _quay_pw_final.content | b64decode | trim }}"
+    quay_init_password: "{{ _quay_init_password }}"
 
 # --- CA trust ---
 - name: Find Quay root CA certificate

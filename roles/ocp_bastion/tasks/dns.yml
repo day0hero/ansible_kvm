@@ -6,7 +6,7 @@
       server=/{{ cluster_name }}.{{ dns_domain }}/{{ libvirt_network_airgap.ip }}
       server=/{{ dns_domain }}/{{ libvirt_network_airgap.ip }}
       # Forward everything else to upstream DNS
-      server={{ upstream_dns | default('192.168.0.1') }}
+      server={{ upstream_dns }}
       # Listen only on localhost
       listen-address=127.0.0.1
       bind-interfaces
@@ -45,7 +45,3 @@
   retries: 3
   delay: 2
   until: _dns_verify.stdout | length > 0
-
-- name: Display DNS verification result
-  ansible.builtin.debug:
-    msg: "api.{{ cluster_name }}.{{ dns_domain }} -> {{ _dns_verify.stdout | default('UNRESOLVED') }}"

@@ -38,12 +38,13 @@
     - name: "{{ _current_vm.name }} | Build OS disk argument"
       ansible.builtin.set_fact:
         _vm_disk_args:
-          - "path={{ _vm_disk }},format=qcow2,bus=virtio"
+          - "path={{ _vm_disk }},format=qcow2,bus=virtio,cache=none,io=native,discard=unmap"
 
     - name: "{{ _current_vm.name }} | Create extra disks"
       ansible.builtin.command:
         cmd: >-
           qemu-img create -f qcow2
+          -o preallocation=metadata
           {{ storage_pool_path }}/{{ _vm_fqdn }}-{{ item.name }}.qcow2
           {{ item.size }}G
         creates: "{{ storage_pool_path }}/{{ _vm_fqdn }}-{{ item.name }}.qcow2"
@@ -55,7 +56,7 @@
       ansible.builtin.set_fact:
         _vm_disk_args: >-
           {{ _vm_disk_args +
-             ['path=' ~ storage_pool_path ~ '/' ~ _vm_fqdn ~ '-' ~ item.name ~ '.qcow2,format=qcow2,bus=virtio'] }}
+             ['path=' ~ storage_pool_path ~ '/' ~ _vm_fqdn ~ '-' ~ item.name ~ '.qcow2,format=qcow2,bus=virtio,cache=none,io=native,discard=unmap'] }}
       loop: "{{ _current_vm.extra_disks | default([]) }}"
       loop_control:
         label: "{{ item.name }}"
@@ -109,7 +110,7 @@
               {{ _vm_ci_dir }}/user-data
               {{ _vm_ci_dir }}/meta-data
               {{ _vm_ci_dir }}/network-config
-            creates: "{{ _vm_cidata }}"
+          changed_when: true
 
     # --- Ignition path (OpenShift / RHCOS VMs) ---
     - name: "{{ _current_vm.name }} | Prepare ignition"
@@ -196,6 +197,14 @@
     - name: "{{ _current_vm.name }} | Determine wait IP"
       ansible.builtin.set_fact:
         _vm_wait_ip: "{{ _current_vm.networks | selectattr('ip', 'defined') | map(attribute='ip') | first | default('') }}"
+
+    - name: "{{ _current_vm.name }} | Remove stale SSH host keys for VM IPs"
+      ansible.builtin.known_hosts:
+        name: "{{ item }}"
+        state: absent
+      loop: "{{ _current_vm.networks | selectattr('ip', 'defined') | map(attribute='ip') | list }}"
+      become: false
+      when: not _vm_is_openshift
 
     - name: "{{ _current_vm.name }} | Wait for VM to become reachable via SSH"
       ansible.builtin.wait_for:

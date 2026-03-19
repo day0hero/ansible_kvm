@@ -2,12 +2,15 @@ ANSIBLE_PLAYBOOK := ansible-playbook
 VARS_FILE        := group_vars/all/vars.yml
 CORE_PASSWORD    ?= core
 
-.PHONY: help provision bastion deploy-bastion deploy deploy-all \
+.PHONY: help plan provision bastion deploy-bastion deploy deploy-all \
         teardown teardown-ocp teardown-networks destroy core-password
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+plan: ## Show what will be provisioned (networks, VMs, DNS)
+	@$(ANSIBLE_PLAYBOOK) plan.yml
 
 provision: ## Provision infrastructure VMs (bastion)
 	$(ANSIBLE_PLAYBOOK) provision.yml

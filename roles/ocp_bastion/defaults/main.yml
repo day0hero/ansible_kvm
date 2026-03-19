@@ -1,7 +1,6 @@
 ---
 # -- OCP versions --
 ocp_version: "stable-4.21"
-ocp_release_version: "4.21.0"
 ocp_mirror_base_url: "https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp"
 
 # -- Paths --

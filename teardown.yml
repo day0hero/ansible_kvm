@@ -71,44 +71,26 @@
         state: absent
       loop: "{{ _vm_fqdns }}"
 
-    - name: Remove DNS host entries from airgap network
-      ansible.builtin.command:
+    - name: Remove all DNS host entries from airgap network
+      ansible.builtin.shell:
         cmd: >-
-          virsh net-update {{ _airgap.name }}
-          delete dns-host
-          '<host ip="{{ _ip }}"><hostname>{{ _fqdn }}</hostname></host>'
-          --live --config
-      vars:
-        _fqdn: "{{ item.name }}{% if cluster_name | default('') | length > 0 %}.{{ cluster_name }}{% endif %}.{{ dns_domain }}"
-        _ip: "{{ item.networks | selectattr('ip', 'defined') | map(attribute='ip') | first | default('') }}"
-      loop: "{{ _all_vms_combined }}"
-      loop_control:
-        label: "{{ item.name }}"
-      when: (_ip | length) > 0
-      register: _dns_del
-      failed_when:
-        - _dns_del.rc != 0
-        - "'does not exist' not in _dns_del.stderr"
-      changed_when: _dns_del.rc == 0
-
-    - name: Remove extra DNS entries from airgap network
-      ansible.builtin.command:
-        cmd: >-
-          virsh net-update {{ _airgap.name }}
-          delete dns-host
-          '<host ip="{{ item.ip }}"><hostname>{{ item.fqdn }}</hostname></host>'
-          --live --config
-      loop: "{{ extra_dns_entries | default([]) }}"
-      loop_control:
-        label: "{{ item.fqdn }}"
-      register: _extra_dns_del
-      failed_when:
-        - _extra_dns_del.rc != 0
-        - "'does not exist' not in _extra_dns_del.stderr"
-      changed_when: _extra_dns_del.rc == 0
+          set -o pipefail;
+          virsh net-dumpxml {{ _airgap.name }} 2>/dev/null |
+          grep -oP '<host ip=[^/]+</host>' |
+          while IFS= read -r entry; do
+            virsh net-update {{ _airgap.name }} delete dns-host "$entry" --live --config 2>/dev/null || true;
+          done
+      changed_when: false
+      failed_when: false
 
     - name: Remove NM dispatcher script for split DNS
       ansible.builtin.file:
         path: "/etc/NetworkManager/dispatcher.d/99-dns-{{ _airgap.name }}"
         state: absent
       become: true
+
+    - name: Remove bastion SSH host key from known_hosts
+      ansible.builtin.known_hosts:
+        name: "bastion{% if cluster_name | default('') | length > 0 %}.{{ cluster_name }}{% endif %}.{{ dns_domain }}"
+        state: absent
+      become: false
