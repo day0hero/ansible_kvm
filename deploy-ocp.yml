@@ -259,7 +259,7 @@
         msg:
           - "OCP cluster nodes have been provisioned."
           - "Monitor bootstrap progress:"
-          - "  ssh ansible@{{ bastion_ip }}"
+          - "  ssh {{ hostvars['bastion']['ansible_user'] }}@{{ bastion_ip }}"
           - "  openshift-install wait-for bootstrap-complete --dir {{ ocp_install_dir }} --log-level debug"
           - ""
           - "After bootstrap completes:"
