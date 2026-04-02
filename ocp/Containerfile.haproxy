@@ -1,5 +1,0 @@
-FROM registry.access.redhat.com/ubi9/ubi-minimal
-RUN microdnf install -y haproxy && microdnf clean all
-COPY haproxy.cfg /etc/haproxy/haproxy.cfg
-EXPOSE 6443 22623 80 443 9000
-CMD ["haproxy", "-f", "/etc/haproxy/haproxy.cfg", "-db"]

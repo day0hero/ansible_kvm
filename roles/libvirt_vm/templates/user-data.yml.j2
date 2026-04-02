@@ -37,6 +37,10 @@ resize_rootfs: true
 
 runcmd:
   - systemctl enable --now serial-getty@ttyS0.service
+  - echo none > /sys/block/vda/queue/scheduler
+  - 'echo ACTION==\"add|change\", KERNEL==\"vd[a-z]\", ATTR{queue/scheduler}=\"none\" > /etc/udev/rules.d/60-virtio-scheduler.rules'
+  - command -v tuned-adm >/dev/null 2>&1 && tuned-adm profile virtual-guest || true
+  - command -v fstrim >/dev/null 2>&1 && systemctl enable --now fstrim.timer || true
 {% if _current_vm.rh_subscription | default(false) %}
   - subscription-manager register --activationkey="{{ rhsm_activation_key }}" --org="{{ rhsm_org_id }}"
 {% endif %}

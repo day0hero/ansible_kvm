@@ -12,19 +12,20 @@ network:
         - {{ nic.ip }}/{{ nic.prefix | default(24) }}
 {% if nic.gateway is defined %}
       routes:
-        - to: default
+        - to: 0.0.0.0/0
           via: {{ nic.gateway }}
 {% endif %}
 {% if nic.dns_server is defined %}
+{% set _search = nic.dns_search | default(
+     ([ cluster_name ~ "." ~ dns_domain ] if cluster_name | default("") | length > 0 else []) + [ dns_domain ]
+   ) %}
       nameservers:
         addresses:
           - {{ nic.dns_server }}
-{% if nic.dns_search is defined %}
         search:
-{% for domain in nic.dns_search %}
+{% for domain in _search %}
           - {{ domain }}
 {% endfor %}
-{% endif %}
 {% endif %}
 {% else %}
       dhcp4: true

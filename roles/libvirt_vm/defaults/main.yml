@@ -1,7 +1,4 @@
 ---
-# -- Libvirt connection --
-libvirt_uri: "qemu:///system"
-
 # -- Cluster / DNS --
 cluster_name: ""
 dns_domain: "example.local"
